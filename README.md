@@ -1,5 +1,20 @@
 # vinext-starter
 
+## Schettini Floor Solutions production settings
+
+The same source supports the Sites checkpoint and the connected Netlify site.
+Before the public launch, configure these build variables in Netlify:
+
+- `NEXT_PUBLIC_SITE_URL`: the final HTTPS domain, including `https://`.
+- `NEXT_PUBLIC_CONTACT_EMAIL`: the mailbox that should appear on the site.
+- `NEXT_PUBLIC_GA_ID`: the Google Analytics 4 measurement ID (`G-...`).
+
+The estimate form uses Netlify Forms. In the Netlify dashboard, enable form
+detection, deploy once, and add an email notification for the
+`estimate-request` form. The source contains the static form blueprint required
+by the current Next.js runtime, while the visible form submits through AJAX and
+provides loading, success, and recoverable error states.
+
 A clean full-stack starter running on
 [vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and
 Drizzle support.
