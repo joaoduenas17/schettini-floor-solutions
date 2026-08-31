@@ -3,7 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { useEffect, useRef, useState } from "react";
-import type { FormEvent } from "react";
+import type { FormEvent, MouseEvent as ReactMouseEvent } from "react";
 import { trackEvent } from "./analytics";
 import {
   businessEmail,
@@ -20,11 +20,24 @@ const services = [
   { number: "05", title: "Moisture Mitigation", description: "Substrate assessment, moisture-control solutions, and self-leveling systems for reliable installations." },
 ];
 
-const projects = [
+type Project = {
+  id: number;
+  title: string;
+  category: string;
+  segment: string;
+  image: string;
+  width: number;
+  height: number;
+  alt: string;
+  summary: string;
+  video?: boolean;
+};
+
+const projects: Project[] = [
   { id: 1, title: "Polished Aggregate Finish", category: "Polished Concrete", segment: "Commercial", image: "/images/project-polished.webp", width: 640, height: 640, alt: "Close-up of a polished aggregate concrete floor installed by Schettini Floor Solutions", summary: "A refined, durable finish designed to turn the existing slab into the finished floor." },
   { id: 2, title: "High-Build Floor System", category: "Coatings", segment: "Industrial", image: "/images/project-coating.webp", width: 640, height: 430, alt: "Glossy concrete coating project installed by Schettini Floor Solutions", summary: "A seamless coating system selected for dependable performance and easier maintenance." },
   { id: 3, title: "Commercial Concrete Finish", category: "Polished Concrete", segment: "Commercial", image: "/images/project-commercial.webp", width: 640, height: 639, alt: "Finished commercial concrete floor in a large interior space", summary: "A clean concrete finish built for a busy customer-facing environment." },
-  { id: 4, title: "Decorative Floor System", category: "Coatings", segment: "Commercial", image: "/images/project-decorative.webp", width: 361, height: 640, alt: "Decorative concrete flooring project installed by Schettini Floor Solutions", summary: "A distinctive decorative system that balances visual character with everyday durability." },
+  { id: 4, title: "Decorative Floor System", category: "Coatings", segment: "Commercial", image: "/images/project-decorative.webp", width: 361, height: 640, alt: "Decorative concrete flooring project installed by Schettini Floor Solutions", summary: "A distinctive decorative system that balances visual character with everyday durability.", video: true },
 ];
 
 const filters = ["All", "Coatings", "Polished Concrete"];
@@ -44,14 +57,14 @@ const processSteps = [
 
 const featureVideoPageUrl =
   "https://www.facebook.com/Schettinifloorsolutions/videos/476932537067258/";
-const featureVideoEmbedUrl = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(featureVideoPageUrl)}&show_text=false&width=960`;
+const featureVideoEmbedUrl = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(featureVideoPageUrl)}&show_text=false&width=400`;
 const directEmailHref = `mailto:${businessEmail}?subject=${encodeURIComponent("Flooring project estimate request")}`;
 
 type FormStatus = "idle" | "submitting" | "success" | "error";
 
 export default function Home() {
   const [activeFilter, setActiveFilter] = useState("All");
-  const [activeProject, setActiveProject] = useState<(typeof projects)[number] | null>(null);
+  const [activeProject, setActiveProject] = useState<Project | null>(null);
   const [isVideoOpen, setIsVideoOpen] = useState(false);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -77,6 +90,19 @@ export default function Home() {
     if (restoreFocus) requestAnimationFrame(() => menuTriggerRef.current?.focus());
   };
 
+  const handleEmailCta = (event: ReactMouseEvent<HTMLAnchorElement>, placement: string) => {
+    event.preventDefault();
+    closeMobileMenu();
+    const contactSection = document.getElementById("contact");
+    const emailInput = document.getElementById("estimate-email") as HTMLInputElement | null;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    window.history.replaceState(null, "", "#contact");
+    contactSection?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+    window.setTimeout(() => emailInput?.focus({ preventScroll: true }), reduceMotion ? 0 : 650);
+    trackEvent("email_click", { placement, destination: "estimate_form" });
+  };
+
   useEffect(() => {
     const hasOverlay = Boolean(activeProject || isVideoOpen || isMobileMenuOpen);
     if (!hasOverlay) return;
@@ -95,6 +121,34 @@ export default function Home() {
       document.body.classList.remove("modal-open");
     };
   }, [activeProject, isVideoOpen, isMobileMenuOpen]);
+
+  useEffect(() => {
+    const revealElements = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]"));
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (reduceMotion || !("IntersectionObserver" in window)) {
+      revealElements.forEach((element) => element.classList.add("is-visible"));
+      return;
+    }
+
+    document.documentElement.classList.add("motion-ready");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.12, rootMargin: "0px 0px -8% 0px" },
+    );
+
+    revealElements.forEach((element) => observer.observe(element));
+    return () => {
+      observer.disconnect();
+      document.documentElement.classList.remove("motion-ready");
+    };
+  }, []);
 
   const handleEstimate = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -131,7 +185,7 @@ export default function Home() {
       <div className="utility-bar">
         <div className="shell utility-inner">
           <p>Based in Charlotte · Nationwide Service</p>
-          <a href={directEmailHref} onClick={() => trackEvent("email_click", { placement: "utility_bar" })}>Email us</a>
+          <a href="#contact" onClick={(event) => handleEmailCta(event, "utility_bar")}>Email us</a>
         </div>
       </div>
 
@@ -165,7 +219,7 @@ export default function Home() {
             <a href="#about" onClick={() => closeMobileMenu()}>About</a>
             <a href="#reviews" onClick={() => closeMobileMenu()}>Reviews</a>
             <a href="#contact" onClick={() => closeMobileMenu()}>Contact</a>
-            <a href={directEmailHref} onClick={() => { closeMobileMenu(); trackEvent("email_click", { placement: "mobile_menu" }); }}>Email us ↗</a>
+            <a href="#contact" onClick={(event) => handleEmailCta(event, "mobile_menu")}>Email us ↗</a>
           </div>
         </nav>
       </header>
@@ -174,7 +228,7 @@ export default function Home() {
         <section className="hero" id="top" aria-labelledby="hero-title">
           <div className="hero-overlay" />
           <div className="shell hero-inner">
-            <div className="hero-copy">
+            <div className="hero-copy hero-enter">
               <p className="eyebrow"><span aria-hidden="true" /> Commercial & Industrial Flooring Specialists</p>
               <h1 id="hero-title">High-performance concrete floors, built to last.</h1>
               <p className="hero-lead">Coatings, polished concrete, toppings, overlays, and surface preparation delivered with the experience demanding spaces require.</p>
@@ -184,7 +238,7 @@ export default function Home() {
               </div>
               <p className="residential-note">Residential projects are also available.</p>
             </div>
-            <aside className="hero-proof" aria-label="Company highlights">
+            <aside className="hero-proof hero-enter hero-enter-delayed" aria-label="Company highlights">
               <p className="proof-label">Built on experience</p><strong>Since 2012</strong><div className="proof-rule" />
               <div className="proof-rating"><span className="stars" aria-hidden="true">★★★★★</span><span><span className="sr-only">5 out of 5 stars. </span>5.0 Google rating</span></div>
             </aside>
@@ -192,18 +246,18 @@ export default function Home() {
         </section>
 
         <section className="trust-strip" aria-label="Company credentials">
-          <div className="shell trust-grid">
+          <div className="shell trust-grid reveal-stagger" data-reveal>
             <div><strong>14+</strong><span>Years in business</span></div><div><strong>A+</strong><span>BBB Accredited</span></div><div><strong>13</strong><span>Five-star Google reviews</span></div><div><strong>USA</strong><span>Nationwide service</span></div>
           </div>
         </section>
 
         <section className="services section" id="services" aria-labelledby="services-title">
           <div className="shell">
-            <div className="section-heading">
+            <div className="section-heading" data-reveal>
               <div><p className="eyebrow dark"><span aria-hidden="true" /> What we do</p><h2 id="services-title">Complete systems.<br />One accountable team.</h2></div>
               <p>Every durable floor starts below the finish. We assess the slab, prepare it correctly, and install the system that fits the environment.</p>
             </div>
-            <div className="service-grid">
+            <div className="service-grid reveal-stagger" data-reveal>
               {services.map((service) => (
                 <article className="service-card" key={service.title}>
                   <span className="service-number">{service.number}</span><h3>{service.title}</h3><p>{service.description}</p>
@@ -216,26 +270,35 @@ export default function Home() {
 
         <section className="projects section" id="projects" aria-labelledby="projects-title">
           <div className="shell">
-            <div className="projects-heading">
+            <div className="projects-heading" data-reveal>
               <div><p className="eyebrow light"><span aria-hidden="true" /> Selected work</p><h2 id="projects-title">Real floors.<br />Built for real demands.</h2></div>
               <p>Explore a selection of completed work from the Schettini team. Choose a category to focus the gallery.</p>
             </div>
-            <div className="gallery-toolbar" role="group" aria-label="Filter projects by category">
+            <div className="gallery-toolbar" role="group" aria-label="Filter projects by category" data-reveal>
               {filters.map((filter) => (
                 <button className={activeFilter === filter ? "active" : ""} key={filter} onClick={() => setActiveFilter(filter)} type="button" aria-pressed={activeFilter === filter}>{filter}</button>
               ))}
             </div>
-            <div className="project-grid" aria-live="polite">
+            <div className="project-grid reveal-stagger" aria-live="polite" data-reveal>
               {visibleProjects.map((project) => (
                 <button
                   className="project-card"
                   key={project.id}
                   type="button"
-                  onClick={(event) => { projectTriggerRef.current = event.currentTarget; setActiveProject(project); }}
-                  aria-label={`View ${project.title}`}
+                  onClick={(event) => {
+                    if (project.video) {
+                      videoTriggerRef.current = event.currentTarget;
+                      setIsVideoOpen(true);
+                      trackEvent("decorative_project_video_opened");
+                      return;
+                    }
+                    projectTriggerRef.current = event.currentTarget;
+                    setActiveProject(project);
+                  }}
+                  aria-label={project.video ? `Play ${project.title} video` : `View ${project.title}`}
                 >
                   <img src={project.image} alt={project.alt} width={project.width} height={project.height} loading="lazy" /><span className="project-shade" aria-hidden="true" />
-                  <span className="project-meta"><span className="project-kicker">{project.category} · {project.segment}</span><strong>{project.title}</strong><span className="project-view">View project <b aria-hidden="true">↗</b></span></span>
+                  <span className="project-meta"><span className="project-kicker">{project.category} · {project.segment}</span><strong>{project.title}</strong><span className="project-view">{project.video ? "Watch project" : "View project"} <b aria-hidden="true">{project.video ? "▶" : "↗"}</b></span></span>
                 </button>
               ))}
             </div>
@@ -244,7 +307,7 @@ export default function Home() {
         </section>
 
         <section className="markets section" aria-labelledby="markets-title">
-          <div className="shell markets-grid">
+          <div className="shell markets-grid" data-reveal>
             <div className="markets-intro">
               <p className="eyebrow dark"><span aria-hidden="true" /> Who we serve</p><h2 id="markets-title">Performance first, in every environment.</h2>
               <p>Commercial and industrial projects are our primary focus. We also bring the same preparation standards and attention to detail to select residential work.</p>
@@ -259,20 +322,9 @@ export default function Home() {
         </section>
 
         <section className="about section" id="about" aria-labelledby="about-title">
-          <div className="shell about-grid">
+          <div className="shell about-grid" data-reveal>
             <div className="about-image">
-              <button
-                ref={videoTriggerRef}
-                className="about-video-trigger"
-                type="button"
-                onClick={() => { setIsVideoOpen(true); trackEvent("company_video_opened"); }}
-                aria-label="Play a Schettini Floor Solutions project video"
-              >
-                <img src="/images/team.webp" alt="Schettini Floor Solutions crew working together on a concrete floor project" width="640" height="640" loading="lazy" />
-                <span className="video-shade" aria-hidden="true" />
-                <span className="video-play" aria-hidden="true"><span>▶</span></span>
-                <span className="video-label">Watch our work</span>
-              </button>
+              <img className="about-team-image" src="/images/team.webp" alt="Schettini Floor Solutions crew working together on a concrete floor project" width="640" height="640" loading="lazy" />
               <div className="about-badge"><strong>A+</strong><span>BBB Accredited</span></div>
             </div>
             <div className="about-copy">
@@ -289,21 +341,21 @@ export default function Home() {
 
         <section className="process section" aria-labelledby="process-title">
           <div className="shell">
-            <div className="process-heading">
+            <div className="process-heading" data-reveal>
               <div><p className="eyebrow dark"><span aria-hidden="true" /> Our process</p><h2 id="process-title">The finish is only as good as the process.</h2></div>
               <p>A dependable floor is the result of careful evaluation, thorough preparation, and an installation plan matched to the space.</p>
             </div>
-            <div className="process-grid">{processSteps.map((step) => <article key={step.number}><span>{step.number}</span><h3>{step.title}</h3><p>{step.text}</p></article>)}</div>
+            <div className="process-grid reveal-stagger" data-reveal>{processSteps.map((step) => <article key={step.number}><span>{step.number}</span><h3>{step.title}</h3><p>{step.text}</p></article>)}</div>
           </div>
         </section>
 
         <section className="reviews section" id="reviews" aria-labelledby="reviews-title">
           <div className="shell">
-            <div className="reviews-top">
+            <div className="reviews-top" data-reveal>
               <div><p className="eyebrow dark"><span aria-hidden="true" /> Client feedback</p><h2 id="reviews-title">Work that earns trust.</h2></div>
               <div className="google-summary"><strong>5.0</strong><div><span className="stars" aria-hidden="true">★★★★★</span><p><span className="sr-only">5 out of 5 stars. </span>Based on 13 Google reviews</p></div></div>
             </div>
-            <div className="review-grid">
+            <div className="review-grid reveal-stagger" data-reveal>
               {reviews.map((review) => <article className="review-card" key={review.author}><span className="stars" aria-hidden="true">★★★★★</span><blockquote>“{review.quote}”</blockquote><footer><strong>{review.author}</strong><span>{review.detail}</span></footer></article>)}
             </div>
             <div className="review-action"><a className="arrow-link" href={socialLinks.googleReviews} target="_blank" rel="noopener noreferrer">Read all reviews on Google <span aria-hidden="true">↗</span></a></div>
@@ -311,7 +363,7 @@ export default function Home() {
         </section>
 
         <section className="coverage section" aria-labelledby="coverage-title">
-          <div className="shell coverage-grid">
+          <div className="shell coverage-grid" data-reveal>
             <div><p className="eyebrow light"><span aria-hidden="true" /> Service area</p><h2 id="coverage-title">Based in Charlotte.<br />Built to travel.</h2></div>
             <div className="coverage-copy">
               <p>Serving commercial, industrial, and select residential clients nationwide.</p>
@@ -322,7 +374,7 @@ export default function Home() {
         </section>
 
         <section className="faq section" aria-labelledby="faq-title">
-          <div className="shell faq-grid">
+          <div className="shell faq-grid" data-reveal>
             <div><p className="eyebrow dark"><span aria-hidden="true" /> Common questions</p><h2 id="faq-title">Planning a flooring project?</h2></div>
             <div className="faq-list">
               <details><summary>Do you handle residential projects?<span aria-hidden="true">+</span></summary><p>Yes. Commercial and industrial work is our primary focus, but we also accept select residential projects, including garage floors.</p></details>
@@ -334,7 +386,7 @@ export default function Home() {
         </section>
 
         <section className="contact section" id="contact" aria-labelledby="contact-title">
-          <div className="shell contact-grid">
+          <div className="shell contact-grid" data-reveal>
             <div className="contact-copy">
               <p className="eyebrow light"><span aria-hidden="true" /> Start a conversation</p><h2 id="contact-title">Tell us what the floor needs to do.</h2>
               <p>Share the project location, type of space, approximate size, and any timing constraints. We will follow up by email to discuss the right next step.</p>
@@ -358,7 +410,7 @@ export default function Home() {
               <input type="hidden" name="form-name" value="estimate-request" />
               <p className="honeypot" aria-hidden="true"><label>Leave this field empty<input name="website" tabIndex={-1} autoComplete="off" /></label></p>
               <div className="form-row"><label>Name <span aria-hidden="true">*</span><input name="name" autoComplete="name" required placeholder="Your name" /></label><label>Company<input name="company" autoComplete="organization" placeholder="Company or organization" /></label></div>
-              <div className="form-row"><label>Email <span aria-hidden="true">*</span><input type="email" name="email" autoComplete="email" inputMode="email" required placeholder="name@company.com" /></label><label>Phone<input type="tel" name="phone" autoComplete="tel" inputMode="tel" placeholder="Optional" /></label></div>
+              <div className="form-row"><label>Email <span aria-hidden="true">*</span><input id="estimate-email" type="email" name="email" autoComplete="email" inputMode="email" required placeholder="name@company.com" /></label><label>Phone<input type="tel" name="phone" autoComplete="tel" inputMode="tel" placeholder="Optional" /></label></div>
               <div className="form-row"><label>Service<select name="service" defaultValue="Not sure yet"><option>Not sure yet</option>{services.map((service) => <option key={service.title}>{service.title}</option>)}</select></label><label>Project location <span aria-hidden="true">*</span><input name="location" autoComplete="address-level2" required placeholder="City, State" /></label></div>
               <label>Project details<textarea name="message" rows={4} placeholder="Type of space, approximate square footage, timeline, and current floor condition" /></label>
               <button className="button form-button" type="submit" disabled={formStatus === "submitting"}>
@@ -375,15 +427,15 @@ export default function Home() {
       </main>
 
       <footer className="site-footer">
-        <div className="shell footer-main">
+        <div className="shell footer-main" data-reveal>
           <a className="footer-brand" href="#top" aria-label="Back to top"><img src="/images/schettini-logo-alt.png" alt="Schettini Floor Solutions" width="900" height="718" loading="lazy" /></a>
           <p>Concrete flooring solutions for demanding commercial, industrial, and residential spaces.</p>
-          <div className="footer-links"><a href={socialLinks.instagram} target="_blank" rel="noopener noreferrer">Instagram ↗</a><a href={socialLinks.facebook} target="_blank" rel="noopener noreferrer">Facebook ↗</a><a href={directEmailHref}>Email us</a><a href={`tel:${businessPhone}`}>{businessPhoneDisplay}</a></div>
+          <div className="footer-links"><a href={socialLinks.instagram} target="_blank" rel="noopener noreferrer">Instagram ↗</a><a href={socialLinks.facebook} target="_blank" rel="noopener noreferrer">Facebook ↗</a><a href="#contact" onClick={(event) => handleEmailCta(event, "footer")}>Email us</a><a href={`tel:${businessPhone}`}>{businessPhoneDisplay}</a></div>
         </div>
         <div className="shell footer-bottom"><span>© 2026 Schettini Floor Solutions LLC</span><span>Charlotte, North Carolina · Nationwide service · By appointment</span></div>
       </footer>
 
-      <a className="email-float" href={directEmailHref} onClick={() => trackEvent("email_click", { placement: "floating_button" })} aria-label={`Email Schettini Floor Solutions at ${businessEmail}`}><span>Email us</span><b aria-hidden="true">↗</b></a>
+      <a className="email-float" href="#contact" onClick={(event) => handleEmailCta(event, "floating_button")} aria-label="Open the estimate form and focus the email field"><span>Email us</span><b aria-hidden="true">↗</b></a>
 
       {activeProject && (
         <div className="project-modal" role="dialog" aria-modal="true" aria-labelledby="project-modal-title" aria-describedby="project-modal-description" onMouseDown={(event) => { if (event.target === event.currentTarget) closeProject(); }}>
@@ -398,7 +450,7 @@ export default function Home() {
       {isVideoOpen && (
         <div className="video-modal" role="dialog" aria-modal="true" aria-labelledby="video-modal-title" onMouseDown={(event) => { if (event.target === event.currentTarget) closeVideo(); }}>
           <div className="video-modal-card">
-            <div className="video-modal-heading"><div><p>Project video</p><h2 id="video-modal-title">See the work in motion.</h2></div><button className="modal-close video-close" type="button" onClick={closeVideo} aria-label="Close video" autoFocus>×</button></div>
+            <div className="video-modal-heading"><div><p>Project video</p><h2 id="video-modal-title">Decorative Floor System</h2></div><button className="modal-close video-close" type="button" onClick={closeVideo} aria-label="Close video" autoFocus>×</button></div>
             <div className="video-frame-wrap">
               {!isVideoLoaded && <div className="video-loading" role="status"><span className="loading-spinner" aria-hidden="true" /> Loading video…</div>}
               <iframe
