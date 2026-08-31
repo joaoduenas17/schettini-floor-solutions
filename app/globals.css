@@ -255,8 +255,8 @@ body.modal-open { overflow: hidden; }
 
 .site-footer { background: #101211; color: var(--white); border-top: 1px solid rgba(255,255,255,.1); }
 .footer-main { min-height: 225px; padding-block: 50px; display: grid; grid-template-columns: 165px 1fr auto; gap: 60px; align-items: center; }
-.footer-brand { width: 125px; height: 125px; display: grid; place-items: center; background: var(--white); overflow: hidden; }
-.footer-brand img { width: 92px; max-height: 105px; object-fit: contain; }
+.footer-brand { width: 145px; height: 125px; display: grid; place-items: center; background: transparent; }
+.footer-brand img { width: 138px; max-height: 112px; object-fit: contain; }
 .footer-main > p { max-width: 420px; margin: 0; color: rgba(255,255,255,.5); font-size: 14px; line-height: 1.7; }
 .footer-links { display: flex; flex-direction: column; align-items: flex-end; gap: 13px; font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
 .footer-bottom { min-height: 66px; display: flex; align-items: center; justify-content: space-between; gap: 30px; border-top: 1px solid rgba(255,255,255,.13); color: rgba(255,255,255,.36); font-size: 9px; letter-spacing: .08em; text-transform: uppercase; }

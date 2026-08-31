@@ -116,6 +116,8 @@ test("images, external links, video, and responsive breakpoints meet the accessi
   assert.match(css, /@media \(max-width: 900px\)/);
   assert.match(css, /@media \(max-width: 600px\)/);
   assert.match(css, /prefers-reduced-motion: reduce/);
+  assert.match(page, /schettini-logo-alt\.png/);
+  assert.match(css, /\.footer-brand \{[^}]*background: transparent/);
 });
 
 test("Netlify and Next.js apply the HTTPS security header set", async () => {
