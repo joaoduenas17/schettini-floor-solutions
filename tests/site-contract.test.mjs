@@ -38,7 +38,7 @@ test("scroll reveals and the decorative project video are wired to the intended 
   assert.match(page, /project\.video \? `Play/);
   assert.doesNotMatch(page, /about-video-trigger/);
   assert.match(page, /className="about-team-image"/);
-  assert.match(css, /aspect-ratio: 9 \/ 16/);
+  assert.match(css, /aspect-ratio: 1 \/ 1/);
 });
 
 test("Netlify form blueprint matches every submitted field", async () => {
