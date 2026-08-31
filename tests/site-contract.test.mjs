@@ -21,6 +21,24 @@ test("the contact experience is email-first and contains no WhatsApp flow", asyn
   assert.match(page, /formStatus === "submitting"/);
   assert.match(page, /formStatus === "success"/);
   assert.match(page, /formStatus === "error"/);
+  assert.match(page, /id="estimate-email"/);
+  assert.match(page, /handleEmailCta/);
+});
+
+test("scroll reveals and the decorative project video are wired to the intended elements", async () => {
+  const [page, css] = await Promise.all([
+    source("app/page.tsx"),
+    source("app/globals.css"),
+  ]);
+
+  assert.match(page, /IntersectionObserver/);
+  assert.match(page, /data-reveal/);
+  assert.match(css, /\.motion-ready \[data-reveal\]/);
+  assert.match(page, /title: "Decorative Floor System"[\s\S]*?video: true/);
+  assert.match(page, /project\.video \? `Play/);
+  assert.doesNotMatch(page, /about-video-trigger/);
+  assert.match(page, /className="about-team-image"/);
+  assert.match(css, /aspect-ratio: 9 \/ 16/);
 });
 
 test("Netlify form blueprint matches every submitted field", async () => {
