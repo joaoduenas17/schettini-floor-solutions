@@ -420,7 +420,10 @@ export default function Home() {
                 {formStatus === "success" && <p className="form-success" role="status">Thank you. Your request was received, and the team will reply by email.</p>}
                 {formStatus === "error" && <p className="form-error" role="alert">We could not submit the form. Please <a href={directEmailHref}>email your request directly</a>.</p>}
               </div>
-              <p className="form-note">Your information is used only to respond to this estimate request.</p>
+              <p className="form-note">
+                We use your information to respond to this request and provide the
+                services you ask about. See our <a href="/privacy">Privacy Policy</a>.
+              </p>
             </form>
           </div>
         </section>
@@ -432,7 +435,15 @@ export default function Home() {
           <p>Concrete flooring solutions for demanding commercial, industrial, and residential spaces.</p>
           <div className="footer-links"><a href={socialLinks.instagram} target="_blank" rel="noopener noreferrer">Instagram ↗</a><a href={socialLinks.facebook} target="_blank" rel="noopener noreferrer">Facebook ↗</a><a href="#contact" onClick={(event) => handleEmailCta(event, "footer")}>Email us</a><a href={`tel:${businessPhone}`}>{businessPhoneDisplay}</a></div>
         </div>
-        <div className="shell footer-bottom"><span>© 2026 Schettini Floor Solutions LLC</span><span>Charlotte, North Carolina · Nationwide service · By appointment</span></div>
+        <div className="shell footer-bottom">
+          <span>© 2026 Schettini Floor Solutions LLC · Charlotte, North Carolina · Nationwide service · By appointment</span>
+          <nav className="footer-legal" aria-label="Legal">
+            <a href="/privacy">Privacy</a>
+            <a href="/terms">Terms</a>
+            <a href="/accessibility">Accessibility</a>
+          </nav>
+          <span className="duetech-credit">Website by <strong>Duetech</strong></span>
+        </div>
       </footer>
 
       <a className="email-float" href="#contact" onClick={(event) => handleEmailCta(event, "floating_button")} aria-label="Open the estimate form and focus the email field"><span>Email us</span><b aria-hidden="true">↗</b></a>
