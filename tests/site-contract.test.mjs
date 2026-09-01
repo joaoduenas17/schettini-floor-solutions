@@ -9,12 +9,15 @@ async function source(path) {
 }
 
 test("the contact experience is email-first and contains no WhatsApp flow", async () => {
-  const [page, css] = await Promise.all([
+  const [page, css, siteConfig] = await Promise.all([
     source("app/page.tsx"),
     source("app/globals.css"),
+    source("app/site-config.ts"),
   ]);
 
   assert.doesNotMatch(`${page}\n${css}`, /whatsapp|wa\.me/i);
+  assert.match(siteConfig, /admin@schettinifloor\.com/);
+  assert.doesNotMatch(siteConfig, /accounting@schettinifloor\.com/);
   assert.match(page, /mailto:/);
   assert.match(page, /name="estimate-request"/);
   assert.match(page, /type="email" name="email"/);
@@ -93,10 +96,37 @@ test("SEO, sharing, indexing, favicon, analytics, and 404 routes are present", a
   assert.match(layout, /alternates: \{ canonical: "\/" \}/);
   assert.match(layout, /application\/ld\+json/);
   assert.match(sitemap, /MetadataRoute\.Sitemap/);
+  assert.match(sitemap, /"privacy", "terms", "accessibility"/);
   assert.match(robots, /sitemap:/);
   assert.match(analytics, /NEXT_PUBLIC_GA_ID/);
   assert.match(notFound, /This floor does not exist\./);
   await access(new URL("public/favicon.svg", root));
+});
+
+test("legal disclosures, analytics consent, and the Duetech credit are integrated", async () => {
+  const [page, privacy, terms, accessibility, consent, analytics] = await Promise.all([
+    source("app/page.tsx"),
+    source("app/privacy/page.tsx"),
+    source("app/terms/page.tsx"),
+    source("app/accessibility/page.tsx"),
+    source("app/cookie-consent.tsx"),
+    source("app/analytics.tsx"),
+  ]);
+
+  assert.match(page, /href="\/privacy"/);
+  assert.match(page, /href="\/terms"/);
+  assert.match(page, /href="\/accessibility"/);
+  assert.match(page, /Website by <strong>Duetech<\/strong>/);
+  assert.match(privacy, /Information we collect/);
+  assert.match(privacy, /Google Analytics only after you accept analytics cookies/);
+  assert.match(terms, /Submitting an estimate request does not create/);
+  assert.match(terms, /laws of the State of North Carolina/);
+  assert.match(accessibility, /WCAG\) 2\.2 Level AA/);
+  assert.match(accessibility, /Need assistance or found a barrier\?/);
+  assert.match(consent, /Only necessary/);
+  assert.match(consent, /Accept analytics/);
+  assert.match(consent, /saveAnalyticsConsent/);
+  assert.match(analytics, /consent !== "granted"/);
 });
 
 test("images, external links, video, and responsive breakpoints meet the accessibility contract", async () => {
