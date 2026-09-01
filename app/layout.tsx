@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Analytics } from "./analytics";
+import { CookieConsent } from "./cookie-consent";
 import {
   businessEmail,
   businessPhone,
@@ -148,6 +149,7 @@ export default function RootLayout({
         />
         {children}
         <Analytics />
+        <CookieConsent />
       </body>
     </html>
   );
