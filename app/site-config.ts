@@ -2,7 +2,7 @@ export const companyName = "Schettini Floor Solutions LLC";
 export const shortCompanyName = "Schettini Floor Solutions";
 export const businessEmail =
   process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() ||
-  "accounting@schettinifloor.com";
+  "admin@schettinifloor.com";
 export const businessPhone = "+17049625681";
 export const businessPhoneDisplay = "(704) 962-5681";
 

@@ -252,6 +252,7 @@ body.modal-open { overflow: hidden; }
 .form-error { border-color: var(--red); background: #fff0f1; color: #8d101b; }
 .form-error a { font-weight: 800; text-decoration: underline; text-underline-offset: 3px; }
 .form-note { margin: -8px 0 0; color: var(--muted); font-size: 10px; line-height: 1.5; }
+.form-note a { color: var(--ink); font-weight: 800; text-decoration: underline; text-underline-offset: 3px; }
 
 .site-footer { background: #101211; color: var(--white); border-top: 1px solid rgba(255,255,255,.1); }
 .footer-main { min-height: 225px; padding-block: 50px; display: grid; grid-template-columns: 165px 1fr auto; gap: 60px; align-items: center; }
@@ -259,7 +260,56 @@ body.modal-open { overflow: hidden; }
 .footer-brand img { width: 138px; max-height: 112px; object-fit: contain; }
 .footer-main > p { max-width: 420px; margin: 0; color: rgba(255,255,255,.5); font-size: 14px; line-height: 1.7; }
 .footer-links { display: flex; flex-direction: column; align-items: flex-end; gap: 13px; font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
-.footer-bottom { min-height: 66px; display: flex; align-items: center; justify-content: space-between; gap: 30px; border-top: 1px solid rgba(255,255,255,.13); color: rgba(255,255,255,.36); font-size: 9px; letter-spacing: .08em; text-transform: uppercase; }
+.footer-bottom { min-height: 72px; display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 30px; border-top: 1px solid rgba(255,255,255,.13); color: rgba(255,255,255,.42); font-size: 9px; letter-spacing: .08em; line-height: 1.55; text-transform: uppercase; }
+.footer-legal { display: flex; align-items: center; justify-content: center; gap: 18px; }
+.footer-legal a { color: rgba(255,255,255,.7); text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 4px; transition: color .2s ease, text-decoration-color .2s ease; }
+.footer-legal a:hover { color: var(--white); text-decoration-color: var(--red); }
+.duetech-credit { white-space: nowrap; }
+.duetech-credit strong { color: rgba(255,255,255,.82); font-weight: 800; }
+
+.legal-header { position: sticky; z-index: 20; top: 0; background: rgba(255,255,255,.97); border-bottom: 1px solid var(--line); backdrop-filter: blur(14px); }
+.legal-header-inner { min-height: 88px; display: flex; align-items: center; justify-content: space-between; gap: 28px; }
+.legal-brand { width: 102px; height: 80px; display: grid; place-items: center start; }
+.legal-brand img { width: 82px; max-height: 76px; object-fit: contain; }
+.legal-back { display: inline-flex; align-items: center; gap: 12px; padding-bottom: 6px; border-bottom: 1px solid var(--ink); font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.legal-back span { color: var(--red); font-size: 16px; }
+.legal-page { min-height: calc(100svh - 238px); padding-block: 86px 112px; background: var(--paper); }
+.legal-grid { display: grid; grid-template-columns: 230px minmax(0, 760px); justify-content: space-between; gap: clamp(56px, 9vw, 132px); }
+.legal-sidebar { position: sticky; top: 132px; align-self: start; }
+.legal-sidebar > p { margin: 0 0 12px; color: var(--red); font-size: 10px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; }
+.legal-sidebar > span { display: block; color: var(--muted); font-size: 12px; line-height: 1.5; }
+.legal-sidebar nav { margin-top: 34px; display: grid; border-top: 1px solid var(--line); }
+.legal-sidebar nav a { padding: 15px 0; border-bottom: 1px solid var(--line); font-size: 12px; font-weight: 800; }
+.legal-sidebar nav a:hover { color: var(--red); }
+.legal-content > header { padding-bottom: 48px; border-bottom: 1px solid var(--line); }
+.legal-content h1 { margin: 0; font-size: clamp(52px, 7vw, 82px); line-height: .95; letter-spacing: -.06em; text-wrap: balance; }
+.legal-content > header > p { max-width: 680px; margin: 27px 0 0; color: var(--muted); font-size: 18px; line-height: 1.7; }
+.legal-content section { padding-block: 38px; border-bottom: 1px solid var(--line); }
+.legal-content section:last-child { padding-bottom: 0; border-bottom: 0; }
+.legal-content h2 { margin: 0 0 18px; font-size: 25px; line-height: 1.2; letter-spacing: -.03em; }
+.legal-content p, .legal-content li { color: #4f524f; font-size: 15px; line-height: 1.78; }
+.legal-content p { margin: 0; }
+.legal-content p + p { margin-top: 17px; }
+.legal-content ul { margin: 18px 0 0; padding-left: 21px; }
+.legal-content li + li { margin-top: 10px; }
+.legal-content a { color: var(--ink); font-weight: 800; text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 4px; overflow-wrap: anywhere; }
+.legal-footer { background: #101211; color: rgba(255,255,255,.55); }
+.legal-footer .shell { min-height: 78px; display: flex; align-items: center; justify-content: space-between; gap: 30px; font-size: 9px; letter-spacing: .08em; text-transform: uppercase; }
+.legal-footer strong { color: rgba(255,255,255,.86); }
+
+.cookie-banner { position: fixed; z-index: 160; right: 0; bottom: 0; left: 0; background: var(--white); color: var(--ink); border-top: 3px solid var(--red); box-shadow: 0 -18px 50px rgba(0,0,0,.18); }
+.cookie-banner-inner { min-height: 150px; padding-block: 26px; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 48px; }
+.cookie-banner strong { font-size: 18px; letter-spacing: -.02em; }
+.cookie-banner p { max-width: 720px; margin: 8px 0 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
+.cookie-banner p a { color: var(--ink); font-weight: 800; text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 3px; }
+.cookie-actions { display: flex; align-items: center; gap: 10px; }
+.cookie-actions button, .cookie-settings-toggle { min-height: 46px; padding: 0 18px; border: 1px solid var(--ink); cursor: pointer; font-size: 10px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
+.cookie-primary { background: var(--red); border-color: var(--red) !important; color: var(--white); }
+.cookie-primary:hover { background: var(--red-dark); border-color: var(--red-dark) !important; }
+.cookie-secondary { background: transparent; color: var(--ink); }
+.cookie-secondary:hover { background: var(--ink); color: var(--white); }
+.cookie-settings-toggle { position: fixed; z-index: 29; left: 18px; bottom: 18px; min-height: 38px; padding-inline: 13px; background: #101211; color: var(--white); border-color: rgba(255,255,255,.22); box-shadow: 0 8px 22px rgba(0,0,0,.2); }
+.cookie-settings-toggle:hover { background: var(--red); border-color: var(--red); }
 
 .email-float { position: fixed; z-index: 30; right: 18px; bottom: 18px; min-height: 50px; padding: 0 18px; display: flex; align-items: center; gap: 13px; background: var(--red); color: var(--white); box-shadow: 0 12px 30px rgba(0,0,0,.24); font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; transition: transform .2s ease, background .2s ease; }
 .email-float:hover { background: var(--red-dark); transform: translateY(-2px); }
@@ -386,6 +436,15 @@ body.modal-open { overflow: hidden; }
   .modal-image { min-height: 47vh; }
   .modal-copy { padding: 42px 34px; }
   .video-modal-card { max-width: 430px; }
+  .footer-bottom { grid-template-columns: 1fr auto; padding-block: 18px; }
+  .footer-legal { justify-content: flex-start; }
+  .duetech-credit { grid-column: 2; grid-row: 1 / span 2; }
+  .legal-grid { grid-template-columns: 1fr; gap: 52px; }
+  .legal-sidebar { position: static; }
+  .legal-sidebar nav { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .legal-sidebar nav a { padding-right: 14px; }
+  .cookie-banner-inner { gap: 28px; }
+  .cookie-actions { align-items: stretch; flex-direction: column-reverse; }
 }
 
 @media (max-width: 600px) {
@@ -419,7 +478,27 @@ body.modal-open { overflow: hidden; }
   .footer-main { grid-template-columns: 1fr; gap: 28px; }
   .footer-main > p { max-width: 100%; }
   .footer-links { grid-column: auto; align-items: flex-start; flex-direction: column; gap: 14px; }
-  .footer-bottom { padding-block: 20px; align-items: flex-start; flex-direction: column; justify-content: center; gap: 8px; line-height: 1.45; }
+  .footer-bottom { padding-block: 24px; display: flex; align-items: flex-start; flex-direction: column; justify-content: center; gap: 14px; line-height: 1.5; }
+  .footer-legal { justify-content: flex-start; flex-wrap: wrap; gap: 10px 18px; }
+  .duetech-credit { margin-top: 3px; }
+  .legal-header-inner { min-height: 76px; }
+  .legal-brand { height: 70px; }
+  .legal-brand img { width: 74px; max-height: 68px; }
+  .legal-back { font-size: 9px; }
+  .legal-page { padding-block: 62px 84px; }
+  .legal-grid { gap: 42px; }
+  .legal-sidebar nav { grid-template-columns: 1fr; }
+  .legal-content > header { padding-bottom: 38px; }
+  .legal-content h1 { font-size: clamp(47px, 15vw, 66px); }
+  .legal-content > header > p { font-size: 16px; }
+  .legal-content section { padding-block: 31px; }
+  .legal-content h2 { font-size: 22px; }
+  .legal-content p, .legal-content li { font-size: 14px; }
+  .legal-footer .shell { min-height: 92px; padding-block: 22px; align-items: flex-start; flex-direction: column; justify-content: center; gap: 9px; }
+  .cookie-banner-inner { padding-block: 22px; grid-template-columns: 1fr; gap: 20px; }
+  .cookie-actions { display: grid; grid-template-columns: 1fr 1fr; }
+  .cookie-actions button { width: 100%; padding-inline: 12px; }
+  .cookie-settings-toggle { left: 12px; bottom: 12px; min-height: 36px; }
   .email-float { right: 12px; bottom: 12px; padding-inline: 15px; }
   .project-modal { padding: 12px; }
   .modal-card { max-height: calc(100vh - 24px); }
