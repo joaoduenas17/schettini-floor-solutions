@@ -1,19 +1,46 @@
-# vinext-starter
+# Schettini Floor Solutions
 
-## Schettini Floor Solutions production settings
+## Cloudflare Pages delivery
 
-The same source supports the Sites checkpoint and the connected Netlify site.
-Before the public launch, configure these build variables in Netlify:
+The production domain is **https://schettinifs.com**. Build a complete folder
+for the owner's Cloudflare Pages dashboard upload:
 
-- `NEXT_PUBLIC_SITE_URL`: the final HTTPS domain, including `https://`.
-- `NEXT_PUBLIC_CONTACT_EMAIL`: the mailbox that should appear on the site.
-- `NEXT_PUBLIC_GA_ID`: the Google Analytics 4 measurement ID (`G-...`).
+```bash
+npm ci
+npm run build:cloudflare
+npm run test:cloudflare
+```
 
-The estimate form uses Netlify Forms. In the Netlify dashboard, enable form
-detection, deploy once, and add an email notification for the
-`estimate-request` form. The source contains the static form blueprint required
-by the current Next.js runtime, while the visible form submits through AJAX and
-provides loading, success, and recoverable error states.
+Upload **`out/`**, which contains `index.html`, compiled assets, a custom
+`404.html`, legal pages, sitemap, robots, sharing image, and the API Worker.
+No Node.js server, `.next/`, source project, or Netlify configuration is needed
+for the final upload. See [CLOUDFLARE-DEPLOY.md](CLOUDFLARE-DEPLOY.md).
+
+The default contact form prepares an email draft addressed to
+**admin@schettinifloor.com**. It explicitly asks the visitor to send the draft
+and provides copyable details when no email app is configured. It never shows
+an automatic-delivery success message in draft mode.
+
+Automatic delivery is implemented but requires the owner-account mailer and
+Turnstile setup documented in the deployment guide. The API advertises server
+mode only when all required bindings and keys are present.
+
+Photos are described in `app/projects.ts` and `app/project-photos.json`.
+Responsive WebP and AVIF files live in `public/images/projects/`. The former
+team photo and decorative video screenshot are excluded from every export.
+The About section is intentionally text only until a current team photo is
+provided. No project location or specific coating chemistry is inferred from
+a photograph.
+
+Analytics is disabled until a real owner-supplied measurement ID is configured.
+To use GA4, set `NEXT_PUBLIC_GA_ID=G-...` before rebuilding; the existing consent
+controls gate optional analytics. Cloudflare Web Analytics can instead be
+configured in the owner's Pages dashboard and its use added to the policy.
+
+The historical Sites/Netlify scripts remain available for development, while
+`build:cloudflare` is the final delivery command.
+
+## Historical Sites starter
 
 A clean full-stack starter running on
 [vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and

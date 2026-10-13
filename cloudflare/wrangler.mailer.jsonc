@@ -1,0 +1,14 @@
+{
+  "name": "schettini-contact-mailer",
+  "main": "contact-mailer.js",
+  "compatibility_date": "2026-10-13",
+  "workers_dev": false,
+  "preview_urls": false,
+  "send_email": [
+    {
+      "name": "EMAIL",
+      "destination_address": "admin@schettinifloor.com",
+      "allowed_sender_addresses": ["estimates@schettinifs.com"]
+    }
+  ]
+}
