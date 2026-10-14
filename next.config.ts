@@ -12,14 +12,14 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
-  async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
-  },
+  ...(process.env.CLOUDFLARE_EXPORT === "true"
+    ? { output: "export" as const, trailingSlash: true, images: { unoptimized: true } }
+    : { async headers() { return [{ source: "/:path*", headers: securityHeaders }]; } }),
   // Netlify runs the standard Next.js compiler. Keep its type-checking scope
   // focused on the web app and away from the optional Cloudflare/Vinext
   // scaffolding used by the Sites deployment.
-  ...(process.env.NETLIFY === "true"
-    ? { typescript: { tsconfigPath: "tsconfig.netlify.json" } }
+  ...(process.env.NETLIFY === "true" || process.env.CLOUDFLARE_EXPORT === "true"
+    ? { typescript: { tsconfigPath: "tsconfig.web.json" } }
     : {}),
 };
 

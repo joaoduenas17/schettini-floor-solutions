@@ -4,6 +4,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent, MouseEvent as ReactMouseEvent } from "react";
+import { ProjectPicture } from "./project-picture";
+import { filters, heroPhoto, projects, type Project } from "./projects";
+import { Turnstile } from "./turnstile";
+import { prepareEstimateEmail } from "./estimate-email";
 import { trackEvent } from "./analytics";
 import {
   businessEmail,
@@ -20,28 +24,6 @@ const services = [
   { number: "05", title: "Moisture Mitigation", description: "Substrate assessment, moisture-control solutions, and self-leveling systems for reliable installations." },
 ];
 
-type Project = {
-  id: number;
-  title: string;
-  category: string;
-  segment: string;
-  image: string;
-  width: number;
-  height: number;
-  alt: string;
-  summary: string;
-  video?: boolean;
-};
-
-const projects: Project[] = [
-  { id: 1, title: "Polished Aggregate Finish", category: "Polished Concrete", segment: "Commercial", image: "/images/project-polished.webp", width: 640, height: 640, alt: "Close-up of a polished aggregate concrete floor installed by Schettini Floor Solutions", summary: "A refined, durable finish designed to turn the existing slab into the finished floor." },
-  { id: 2, title: "High-Build Floor System", category: "Coatings", segment: "Industrial", image: "/images/project-coating.webp", width: 640, height: 430, alt: "Glossy concrete coating project installed by Schettini Floor Solutions", summary: "A seamless coating system selected for dependable performance and easier maintenance." },
-  { id: 3, title: "Commercial Concrete Finish", category: "Polished Concrete", segment: "Commercial", image: "/images/project-commercial.webp", width: 640, height: 639, alt: "Finished commercial concrete floor in a large interior space", summary: "A clean concrete finish built for a busy customer-facing environment." },
-  { id: 4, title: "Decorative Floor System", category: "Coatings", segment: "Commercial", image: "/images/project-decorative.webp", width: 361, height: 640, alt: "Decorative concrete flooring project installed by Schettini Floor Solutions", summary: "A distinctive decorative system that balances visual character with everyday durability.", video: true },
-];
-
-const filters = ["All", "Coatings", "Polished Concrete"];
-
 const reviews = [
   { quote: "From large-scale projects for big builders to smaller ones, always great quality.", author: "Andreea Maleady", detail: "Local Guide" },
   { quote: "They worked with my schedule to provide the best finished product.", author: "Ben Dunn", detail: "Google review" },
@@ -55,34 +37,39 @@ const processSteps = [
   { number: "04", title: "Deliver", text: "We complete a final walkthrough and leave you with a floor ready for the demands of the space." },
 ];
 
-const featureVideoPageUrl =
-  "https://www.facebook.com/Schettinifloorsolutions/videos/476932537067258/";
-const featureVideoEmbedUrl = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(featureVideoPageUrl)}&show_text=false&width=400`;
 const directEmailHref = `mailto:${businessEmail}?subject=${encodeURIComponent("Flooring project estimate request")}`;
 
-type FormStatus = "idle" | "submitting" | "success" | "error";
+type FormStatus = "idle" | "submitting" | "success" | "error" | "draft";
 
 export default function Home() {
   const [activeFilter, setActiveFilter] = useState("All");
   const [activeProject, setActiveProject] = useState<Project | null>(null);
-  const [isVideoOpen, setIsVideoOpen] = useState(false);
-  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+  const [activePhotoIndex, setActivePhotoIndex] = useState(0);
+  const [photoLoading, setPhotoLoading] = useState(false);
+  const [photoError, setPhotoError] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [formStatus, setFormStatus] = useState<FormStatus>("idle");
+  const [deliveryMode, setDeliveryMode] = useState<"email" | "server">("email");
+  const [turnstileSiteKey, setTurnstileSiteKey] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const [emailDraft, setEmailDraft] = useState<{ href: string; body: string } | null>(null);
+  const [copyStatus, setCopyStatus] = useState("");
   const projectTriggerRef = useRef<HTMLButtonElement | null>(null);
-  const videoTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const projectDialogRef = useRef<HTMLDivElement | null>(null);
   const menuTriggerRef = useRef<HTMLButtonElement | null>(null);
-  const visibleProjects = activeFilter === "All" ? projects : projects.filter((project) => project.category === activeFilter);
+  const visibleProjects = activeFilter === "All" ? projects : projects.filter((project) => project.tags.includes(activeFilter));
+  const activePhoto = activeProject?.photos[activePhotoIndex];
 
   const closeProject = () => {
     setActiveProject(null);
     requestAnimationFrame(() => projectTriggerRef.current?.focus());
   };
 
-  const closeVideo = () => {
-    setIsVideoOpen(false);
-    setIsVideoLoaded(false);
-    requestAnimationFrame(() => videoTriggerRef.current?.focus());
+  const navigatePhoto = (direction: number) => {
+    if (!activeProject || activeProject.photos.length < 2) return;
+    setPhotoLoading(true);
+    setPhotoError(false);
+    setActivePhotoIndex((index) => (index + direction + activeProject.photos.length) % activeProject.photos.length);
   };
 
   const closeMobileMenu = (restoreFocus = false) => {
@@ -104,14 +91,27 @@ export default function Home() {
   };
 
   useEffect(() => {
-    const hasOverlay = Boolean(activeProject || isVideoOpen || isMobileMenuOpen);
+    const hasOverlay = Boolean(activeProject || isMobileMenuOpen);
     if (!hasOverlay) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") return;
-      if (activeProject) closeProject();
-      else if (isVideoOpen) closeVideo();
-      else closeMobileMenu(true);
+      if (event.key === "Escape") {
+        if (activeProject) closeProject();
+        else closeMobileMenu(true);
+      }
+      if (!activeProject) return;
+      if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+        event.preventDefault();
+        navigatePhoto(event.key === "ArrowRight" ? 1 : -1);
+      }
+      if (event.key === "Tab") {
+        const elements = projectDialogRef.current?.querySelectorAll<HTMLElement>("button:not([disabled]), a[href]");
+        if (!elements?.length) return;
+        const first = elements[0];
+        const last = elements[elements.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+      }
     };
 
     document.addEventListener("keydown", handleKeyDown);
@@ -120,7 +120,20 @@ export default function Home() {
       document.removeEventListener("keydown", handleKeyDown);
       document.body.classList.remove("modal-open");
     };
-  }, [activeProject, isVideoOpen, isMobileMenuOpen]);
+  }, [activeProject, isMobileMenuOpen]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch("/api/contact", { signal: controller.signal })
+      .then(async (response) => response.ok ? response.json() : null)
+      .then((config) => {
+        if (config?.mode === "server" && typeof config.turnstileSiteKey === "string") {
+          setDeliveryMode("server");
+          setTurnstileSiteKey(config.turnstileSiteKey);
+        }
+      }).catch(() => { /* Direct email stays available on a static host. */ });
+    return () => controller.abort();
+  }, []);
 
   useEffect(() => {
     const revealElements = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]"));
@@ -154,23 +167,29 @@ export default function Home() {
     event.preventDefault();
     const formElement = event.currentTarget;
     const formData = new FormData(formElement);
-    formData.set("form-name", "estimate-request");
-    const encodedBody = new URLSearchParams();
-
-    formData.forEach((value, key) => {
-      if (typeof value === "string") encodedBody.append(key, value);
-    });
+    if (formStatus === "submitting") return;
+    const draft = prepareEstimateEmail(formData, businessEmail);
+    setEmailDraft(draft);
+    setCopyStatus("");
+    if (deliveryMode === "email") {
+      setFormStatus("draft");
+      window.location.href = draft.href;
+      trackEvent("estimate_email_prepared", { method: "email_draft" });
+      return;
+    }
 
     setFormStatus("submitting");
 
     try {
-      const response = await fetch("/form-detection.html", {
+      const response = await fetch("/api/contact", {
         method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: encodedBody.toString(),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...Object.fromEntries(formData), turnstileToken }),
+        signal: AbortSignal.timeout(20000),
       });
 
-      if (!response.ok) throw new Error(`Form submission failed: ${response.status}`);
+      const result = await response.json();
+      if (!response.ok || result.ok !== true) throw new Error("The request was not accepted.");
       formElement.reset();
       setFormStatus("success");
       trackEvent("estimate_request_submitted", { method: "website_form" });
@@ -226,6 +245,7 @@ export default function Home() {
 
       <main id="main-content">
         <section className="hero" id="top" aria-labelledby="hero-title">
+          <ProjectPicture photo={heroPhoto} className="hero-image" sizes="100vw" eager />
           <div className="hero-overlay" />
           <div className="shell hero-inner">
             <div className="hero-copy hero-enter">
@@ -236,7 +256,6 @@ export default function Home() {
                 <a className="button" href="#contact">Request a Free Estimate <span aria-hidden="true">↗</span></a>
                 <a className="text-link" href="#projects">Explore our work <span aria-hidden="true">↓</span></a>
               </div>
-              <p className="residential-note">Residential projects are also available.</p>
             </div>
             <aside className="hero-proof hero-enter hero-enter-delayed" aria-label="Company highlights">
               <p className="proof-label">Built on experience</p><strong>Since 2012</strong><div className="proof-rule" />
@@ -286,23 +305,21 @@ export default function Home() {
                   key={project.id}
                   type="button"
                   onClick={(event) => {
-                    if (project.video) {
-                      videoTriggerRef.current = event.currentTarget;
-                      setIsVideoOpen(true);
-                      trackEvent("decorative_project_video_opened");
-                      return;
-                    }
                     projectTriggerRef.current = event.currentTarget;
+                    setActivePhotoIndex(0);
+                    setPhotoLoading(true);
+                    setPhotoError(false);
                     setActiveProject(project);
                   }}
-                  aria-label={project.video ? `Play ${project.title} video` : `View ${project.title}`}
+                  aria-label={`View ${project.title}, ${project.photos.length} ${project.photos.length === 1 ? "photo" : "photos"}`}
                 >
-                  <img src={project.image} alt={project.alt} width={project.width} height={project.height} loading="lazy" /><span className="project-shade" aria-hidden="true" />
-                  <span className="project-meta"><span className="project-kicker">{project.category} · {project.segment}</span><strong>{project.title}</strong><span className="project-view">{project.video ? "Watch project" : "View project"} <b aria-hidden="true">{project.video ? "▶" : "↗"}</b></span></span>
+                  <ProjectPicture photo={project.photos[0]} /><span className="project-shade" aria-hidden="true" />
+                  <span className="project-photo-count">{project.photos.length} {project.photos.length === 1 ? "photo" : "photos"}</span>
+                  <span className="project-meta"><span className="project-kicker">{project.category} · {project.segment}</span><strong>{project.title}</strong><span className="project-view">View gallery <b aria-hidden="true">↗</b></span></span>
                 </button>
               ))}
             </div>
-            <p className="gallery-note">More project categories and full case studies will be added as the archive is prepared.</p>
+            <p className="gallery-note">Real project photos from preparation to the finished surface. Open a gallery to explore the details.</p>
           </div>
         </section>
 
@@ -324,7 +341,7 @@ export default function Home() {
         <section className="about section" id="about" aria-labelledby="about-title">
           <div className="shell about-grid" data-reveal>
             <div className="about-image">
-              <img className="about-team-image" src="/images/team.webp" alt="Schettini Floor Solutions crew working together on a concrete floor project" width="640" height="640" loading="lazy" />
+              <img className="about-team-image" src="/images/team.webp" alt="Schettini Floor Solutions team gathered around a table" width="640" height="640" loading="lazy" />
               <div className="about-badge"><strong>A+</strong><span>BBB Accredited</span></div>
             </div>
             <div className="about-copy">
@@ -377,7 +394,7 @@ export default function Home() {
           <div className="shell faq-grid" data-reveal>
             <div><p className="eyebrow dark"><span aria-hidden="true" /> Common questions</p><h2 id="faq-title">Planning a flooring project?</h2></div>
             <div className="faq-list">
-              <details><summary>Do you handle residential projects?<span aria-hidden="true">+</span></summary><p>Yes. Commercial and industrial work is our primary focus, but we also accept select residential projects, including garage floors.</p></details>
+              <details><summary>Do you handle residential projects?<span aria-hidden="true">+</span></summary><p>Residential projects are also available. Commercial and industrial work is our primary focus, and we accept select residential projects, including garage floors.</p></details>
               <details><summary>What areas do you serve?<span aria-hidden="true">+</span></summary><p>We are based in Charlotte, North Carolina, and take on projects nationwide. Availability depends on project scope, schedule, and location.</p></details>
               <details><summary>Can you work around an operating schedule?<span aria-hidden="true">+</span></summary><p>Project schedules are coordinated directly with each client. Tell us about operational or access constraints during the estimate process.</p></details>
               <details><summary>How do I know which floor system I need?<span aria-hidden="true">+</span></summary><p>You do not need to decide before contacting us. We assess the space, substrate, traffic, maintenance needs, and desired finish before recommending a system.</p></details>
@@ -400,30 +417,31 @@ export default function Home() {
               className="estimate-form"
               name="estimate-request"
               method="POST"
-              action="/form-detection.html"
-              data-netlify="true"
-              data-netlify-honeypot="website"
+              action={directEmailHref}
               aria-busy={formStatus === "submitting"}
               onChange={() => { if (formStatus !== "idle" && formStatus !== "submitting") setFormStatus("idle"); }}
               onSubmit={handleEstimate}
             >
-              <input type="hidden" name="form-name" value="estimate-request" />
               <p className="honeypot" aria-hidden="true"><label>Leave this field empty<input name="website" tabIndex={-1} autoComplete="off" /></label></p>
-              <div className="form-row"><label>Name <span aria-hidden="true">*</span><input name="name" autoComplete="name" required placeholder="Your name" /></label><label>Company<input name="company" autoComplete="organization" placeholder="Company or organization" /></label></div>
-              <div className="form-row"><label>Email <span aria-hidden="true">*</span><input id="estimate-email" type="email" name="email" autoComplete="email" inputMode="email" required placeholder="name@company.com" /></label><label>Phone<input type="tel" name="phone" autoComplete="tel" inputMode="tel" placeholder="Optional" /></label></div>
-              <div className="form-row"><label>Service<select name="service" defaultValue="Not sure yet"><option>Not sure yet</option>{services.map((service) => <option key={service.title}>{service.title}</option>)}</select></label><label>Project location <span aria-hidden="true">*</span><input name="location" autoComplete="address-level2" required placeholder="City, State" /></label></div>
-              <label>Project details<textarea name="message" rows={4} placeholder="Type of space, approximate square footage, timeline, and current floor condition" /></label>
-              <button className="button form-button" type="submit" disabled={formStatus === "submitting"}>
-                {formStatus === "submitting" ? <><span className="button-spinner" aria-hidden="true" /> Sending request…</> : <>Send estimate request <span aria-hidden="true">↗</span></>}
+              <div className="form-row"><label>Name <span aria-hidden="true">*</span><input name="name" autoComplete="name" required maxLength={100} placeholder="Your name" /></label><label>Company<input name="company" autoComplete="organization" maxLength={160} placeholder="Company or organization" /></label></div>
+              <div className="form-row"><label>Email <span aria-hidden="true">*</span><input id="estimate-email" type="email" name="email" autoComplete="email" inputMode="email" required maxLength={254} placeholder="name@company.com" /></label><label>Phone<input type="tel" name="phone" autoComplete="tel" inputMode="tel" maxLength={40} placeholder="Optional" /></label></div>
+              <div className="form-row"><label>Service<select name="service" defaultValue="Not sure yet"><option>Not sure yet</option>{services.map((service) => <option key={service.title}>{service.title}</option>)}</select></label><label>Project location <span aria-hidden="true">*</span><input name="location" autoComplete="address-level2" required maxLength={120} placeholder="City, State" /></label></div>
+              <label>Project details<textarea name="message" rows={4} maxLength={1500} placeholder="Type of space, approximate square footage, timeline, and current floor condition" /></label>
+              {deliveryMode === "server" && <Turnstile siteKey={turnstileSiteKey} onToken={setTurnstileToken} resetKey={formStatus === "success" || formStatus === "error" ? formStatus : "idle"} />}
+              <button className="button form-button" type="submit" disabled={formStatus === "submitting" || (deliveryMode === "server" && !turnstileToken)}>
+                {formStatus === "submitting" ? <><span className="button-spinner" aria-hidden="true" /> Sending request…</> : <>{deliveryMode === "server" ? "Send estimate request" : "Prepare email request"} <span aria-hidden="true">↗</span></>}
               </button>
               <div className="form-feedback" aria-live="polite" aria-atomic="true">
                 {formStatus === "success" && <p className="form-success" role="status">Thank you. Your request was received, and the team will reply by email.</p>}
                 {formStatus === "error" && <p className="form-error" role="alert">We could not submit the form. Please <a href={directEmailHref}>email your request directly</a>.</p>}
+                {(formStatus === "draft" || formStatus === "error") && emailDraft && <div className="email-draft"><p role="status">{formStatus === "draft" ? "Your draft is ready. Review it and send it from your email app." : "You can send your request using your email app."} If no app opens, copy the details below and email them to <a href={directEmailHref}>{businessEmail}</a>.</p><label>Request details<textarea readOnly rows={5} value={emailDraft.body} onFocus={(event) => event.currentTarget.select()} /></label><div className="draft-actions"><a href={emailDraft.href}>Open email draft</a><button type="button" onClick={async () => { try { await navigator.clipboard.writeText(emailDraft.body); setCopyStatus("Request details copied."); } catch { setCopyStatus("Select the request details above and copy them."); } }}>Copy request details</button></div><p role="status">{copyStatus}</p></div>}
               </div>
               <p className="form-note">
+                {deliveryMode === "email" && <>This opens a draft in your email app. Send it there to complete your request. </>}
                 We use your information to respond to this request and provide the
                 services you ask about. See our <a href="/privacy">Privacy Policy</a>.
               </p>
+              <noscript><p className="form-note">Please <a href={directEmailHref}>email your project details directly</a>.</p></noscript>
             </form>
           </div>
         </section>
@@ -448,33 +466,20 @@ export default function Home() {
 
       <a className="email-float" href="#contact" onClick={(event) => handleEmailCta(event, "floating_button")} aria-label="Open the estimate form and focus the email field"><span>Email us</span><b aria-hidden="true">↗</b></a>
 
-      {activeProject && (
-        <div className="project-modal" role="dialog" aria-modal="true" aria-labelledby="project-modal-title" aria-describedby="project-modal-description" onMouseDown={(event) => { if (event.target === event.currentTarget) closeProject(); }}>
+      {activeProject && activePhoto && (
+        <div ref={projectDialogRef} className="project-modal" role="dialog" aria-modal="true" aria-labelledby="project-modal-title" aria-describedby="project-modal-description" onMouseDown={(event) => { if (event.target === event.currentTarget) closeProject(); }}>
           <div className="modal-card">
             <button className="modal-close" type="button" onClick={closeProject} aria-label="Close project" autoFocus>×</button>
-            <div className="modal-image"><img src={activeProject.image} alt={activeProject.alt} width={activeProject.width} height={activeProject.height} /></div>
-            <div className="modal-copy"><span>{activeProject.category} · {activeProject.segment}</span><h2 id="project-modal-title">{activeProject.title}</h2><p id="project-modal-description">{activeProject.summary}</p><a className="arrow-link" href="#contact" onClick={closeProject}>Discuss a similar project <span aria-hidden="true">↗</span></a></div>
-          </div>
-        </div>
-      )}
-
-      {isVideoOpen && (
-        <div className="video-modal" role="dialog" aria-modal="true" aria-labelledby="video-modal-title" onMouseDown={(event) => { if (event.target === event.currentTarget) closeVideo(); }}>
-          <div className="video-modal-card">
-            <div className="video-modal-heading"><div><p>Project video</p><h2 id="video-modal-title">Decorative Floor System</h2></div><button className="modal-close video-close" type="button" onClick={closeVideo} aria-label="Close video" autoFocus>×</button></div>
-            <div className="video-frame-wrap">
-              {!isVideoLoaded && <div className="video-loading" role="status"><span className="loading-spinner" aria-hidden="true" /> Loading video…</div>}
-              <iframe
-                src={featureVideoEmbedUrl}
-                title="Schettini Floor Solutions epoxy floor project video"
-                loading="lazy"
-                allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-                allowFullScreen
-                referrerPolicy="strict-origin-when-cross-origin"
-                onLoad={() => setIsVideoLoaded(true)}
-              />
+            <div className="modal-gallery">
+              <div className="modal-image" aria-busy={photoLoading}>
+                {photoLoading && <span className="photo-loading" role="status"><span className="loading-spinner" aria-hidden="true" /> Loading photo…</span>}
+                <ProjectPicture key={activePhoto.src} photo={activePhoto} sizes="(max-width: 900px) 100vw, 600px" eager onLoad={() => setPhotoLoading(false)} onError={() => { setPhotoLoading(false); setPhotoError(true); }} />
+                {photoError && <p className="photo-error" role="alert">This photo could not load. Try another photo.</p>}
+                {activeProject.photos.length > 1 && <div className="photo-navigation"><button type="button" aria-label="Previous photo" onClick={() => navigatePhoto(-1)}>←</button><span aria-live="polite" aria-atomic="true">Photo {activePhotoIndex + 1} of {activeProject.photos.length}</span><button type="button" aria-label="Next photo" onClick={() => navigatePhoto(1)}>→</button></div>}
+              </div>
+              {activeProject.photos.length > 1 && <div className="photo-thumbnails" role="group" aria-label="Choose a project photo">{activeProject.photos.map((photo, index) => <button key={photo.src} type="button" aria-label={`Show photo ${index + 1}: ${photo.alt}`} aria-pressed={index === activePhotoIndex} onClick={() => { if (index === activePhotoIndex) return; setPhotoLoading(true); setPhotoError(false); setActivePhotoIndex(index); }}><ProjectPicture photo={photo} sizes="88px" /></button>)}</div>}
             </div>
-            <a className="video-fallback-link" href={featureVideoPageUrl} target="_blank" rel="noopener noreferrer">Watch on Facebook <span aria-hidden="true">↗</span></a>
+            <div className="modal-copy"><span>{activeProject.category} · {activeProject.segment}</span><h2 id="project-modal-title">{activeProject.title}</h2><p id="project-modal-description">{activeProject.summary}</p><a className="arrow-link" href="#contact" onClick={() => { setActiveProject(null); requestAnimationFrame(() => document.getElementById("estimate-email")?.focus({ preventScroll: true })); }}>Discuss a similar project <span aria-hidden="true">↗</span></a></div>
           </div>
         </div>
       )}

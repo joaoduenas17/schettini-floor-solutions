@@ -1,0 +1,166 @@
+{
+  "industrial-safety-lanes": {
+    "src": "/images/projects/industrial-safety-lanes.webp",
+    "width": 1024,
+    "height": 768,
+    "widths": [
+      320,
+      640,
+      1024
+    ],
+    "alt": "Finished industrial concrete floor with yellow safety lanes and overhead cranes"
+  },
+  "production-walkway": {
+    "src": "/images/projects/production-walkway.webp",
+    "width": 1024,
+    "height": 768,
+    "widths": [
+      320,
+      640,
+      1024
+    ],
+    "alt": "Marked walkway alongside machinery in an industrial facility"
+  },
+  "production-aisle": {
+    "src": "/images/projects/production-aisle.webp",
+    "width": 1024,
+    "height": 768,
+    "widths": [
+      320,
+      640,
+      1024
+    ],
+    "alt": "Reflective industrial floor and yellow pedestrian lane markings"
+  },
+  "work-area-floor": {
+    "src": "/images/projects/work-area-floor.webp",
+    "width": 1024,
+    "height": 768,
+    "widths": [
+      320,
+      640,
+      1024
+    ],
+    "alt": "Finished concrete walkway between red industrial safety curtains"
+  },
+  "equipment-bay": {
+    "src": "/images/projects/equipment-bay.webp",
+    "width": 1024,
+    "height": 768,
+    "widths": [
+      320,
+      640,
+      1024
+    ],
+    "alt": "Concrete floor with yellow boundaries around an equipment bay"
+  },
+  "workshop-walkway": {
+    "src": "/images/projects/workshop-walkway.webp",
+    "width": 1024,
+    "height": 768,
+    "widths": [
+      320,
+      640,
+      1024
+    ],
+    "alt": "Marked concrete walkway through a working production space"
+  },
+  "marked-work-zone": {
+    "src": "/images/projects/marked-work-zone.webp",
+    "width": 1024,
+    "height": 768,
+    "widths": [
+      320,
+      640,
+      1024
+    ],
+    "alt": "Concrete floor with clearly marked work zones beside storage racks"
+  },
+  "machinery-floor": {
+    "src": "/images/projects/machinery-floor.webp",
+    "width": 1024,
+    "height": 768,
+    "widths": [
+      320,
+      640,
+      1024
+    ],
+    "alt": "Finished floor beside heavy machinery and marked yellow lanes"
+  },
+  "industrial-concrete-renewal": {
+    "src": "/images/projects/industrial-concrete-renewal.webp",
+    "width": 1024,
+    "height": 768,
+    "widths": [
+      320,
+      640,
+      1024
+    ],
+    "alt": "Completed concrete floor finish beside industrial machinery"
+  },
+  "renewed-concrete-detail": {
+    "src": "/images/projects/renewed-concrete-detail.webp",
+    "width": 1024,
+    "height": 768,
+    "widths": [
+      320,
+      640,
+      1024
+    ],
+    "alt": "Reflective concrete floor and repaired areas inside an industrial facility"
+  },
+  "mechanical-floor-preparation": {
+    "src": "/images/projects/mechanical-floor-preparation.webp",
+    "width": 1024,
+    "height": 768,
+    "widths": [
+      320,
+      640,
+      1024
+    ],
+    "alt": "Operator using a floor grinder connected to dust extraction in an industrial facility"
+  },
+  "concrete-grinding": {
+    "src": "/images/projects/concrete-grinding.webp",
+    "width": 1024,
+    "height": 768,
+    "widths": [
+      320,
+      640,
+      1024
+    ],
+    "alt": "Mechanical concrete preparation with a floor grinder and extraction hose"
+  },
+  "interior-concrete-finish": {
+    "src": "/images/projects/interior-concrete-finish.webp",
+    "width": 1024,
+    "height": 768,
+    "widths": [
+      320,
+      640,
+      1024
+    ],
+    "alt": "Reflective concrete finish in an interior work area protected by white sheeting"
+  },
+  "interior-floor-detail": {
+    "src": "/images/projects/interior-floor-detail.webp",
+    "width": 768,
+    "height": 1024,
+    "widths": [
+      320,
+      640,
+      768
+    ],
+    "alt": "Low-angle view of a reflective concrete floor during finishing"
+  },
+  "polished-aggregate": {
+    "src": "/images/projects/polished-aggregate.webp",
+    "width": 640,
+    "height": 595,
+    "widths": [
+      320,
+      640
+    ],
+    "alt": "Close-up of aggregate patterns and reflections in a polished concrete floor"
+  }
+}

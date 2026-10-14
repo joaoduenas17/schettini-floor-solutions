@@ -40,6 +40,7 @@ export default function PrivacyPolicy() {
           <li><strong>Optional analytics:</strong> website usage information collected through Google Analytics only after you accept analytics cookies.</li>
         </ul>
         <p>Please do not submit sensitive personal information through the estimate form.</p>
+        <p>When the form opens an email draft, the details remain in your browser until you send the email using your chosen email provider. If direct website delivery is enabled, Cloudflare processes the request, including spam verification and delivery to our business email. We do not store estimate requests in a website database.</p>
       </section>
 
       <section>

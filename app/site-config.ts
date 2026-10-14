@@ -16,12 +16,11 @@ export const socialLinks = {
 export function getSiteUrl() {
   const configuredUrl =
     process.env.NEXT_PUBLIC_SITE_URL?.trim() ||
-    process.env.URL?.trim() ||
-    "https://schettini-floor-solutions.joaoduenasm.chatgpt.site";
+    "https://schettinifs.com";
 
   try {
     return new URL(configuredUrl).origin;
   } catch {
-    return "https://schettini-floor-solutions.joaoduenasm.chatgpt.site";
+    return "https://schettinifs.com";
   }
 }

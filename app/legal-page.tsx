@@ -10,7 +10,7 @@ type LegalPageProps = {
   children: ReactNode;
 };
 
-const lastUpdated = "September 1, 2026";
+const lastUpdated = "October 13, 2026";
 
 export function LegalPage({ eyebrow, title, summary, children }: LegalPageProps) {
   return (

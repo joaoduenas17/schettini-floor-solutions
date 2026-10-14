@@ -28,47 +28,17 @@ test("the contact experience is email-first and contains no WhatsApp flow", asyn
   assert.match(page, /handleEmailCta/);
 });
 
-test("scroll reveals and the decorative project video are wired to the intended elements", async () => {
-  const [page, css] = await Promise.all([
-    source("app/page.tsx"),
-    source("app/globals.css"),
-  ]);
-
+test("scroll reveals and real multi-photo galleries replace the video screenshot", async () => {
+  const [page, css, projects] = await Promise.all([source("app/page.tsx"), source("app/globals.css"), source("app/projects.ts")]);
   assert.match(page, /IntersectionObserver/);
   assert.match(page, /data-reveal/);
-  assert.match(css, /\.motion-ready \[data-reveal\]/);
-  assert.match(page, /title: "Decorative Floor System"[\s\S]*?video: true/);
-  assert.match(page, /project\.video \? `Play/);
-  assert.doesNotMatch(page, /about-video-trigger/);
+  assert.match(css, /prefers-reduced-motion/);
+  assert.match(projects, /Surface Preparation/);
+  assert.match(page, /photo-thumbnails/);
+  assert.match(page, /Previous photo/);
+  assert.match(page, /Next photo/);
+  assert.doesNotMatch(page, /<iframe|project\.video/);
   assert.match(page, /className="about-team-image"/);
-  assert.match(css, /aspect-ratio: 1 \/ 1/);
-});
-
-test("Netlify form blueprint matches every submitted field", async () => {
-  const [page, blueprint] = await Promise.all([
-    source("app/page.tsx"),
-    source("public/form-detection.html"),
-  ]);
-  const expectedFields = [
-    "form-name",
-    "website",
-    "name",
-    "company",
-    "email",
-    "phone",
-    "service",
-    "location",
-    "message",
-  ];
-
-  for (const field of expectedFields) {
-    const fieldPattern = new RegExp(`name=["']${field}["']`);
-    assert.match(page, fieldPattern, `interactive form is missing ${field}`);
-    assert.match(blueprint, fieldPattern, `static form is missing ${field}`);
-  }
-
-  assert.match(blueprint, /data-netlify="true"/);
-  assert.match(blueprint, /data-netlify-honeypot="website"/);
 });
 
 test("all static in-page links resolve to an existing section", async () => {
@@ -129,7 +99,7 @@ test("legal disclosures, analytics consent, and the Duetech credit are integrate
   assert.match(analytics, /consent !== "granted"/);
 });
 
-test("images, external links, video, and responsive breakpoints meet the accessibility contract", async () => {
+test("images, external links, and responsive breakpoints meet the accessibility contract", async () => {
   const [page, css] = await Promise.all([
     source("app/page.tsx"),
     source("app/globals.css"),
@@ -137,10 +107,9 @@ test("images, external links, video, and responsive breakpoints meet the accessi
   const imageTags = [...page.matchAll(/<img\b[\s\S]*?\/>/g)].map((match) => match[0]);
   const externalLinks = [...page.matchAll(/<a\b[\s\S]*?target="_blank"[\s\S]*?>/g)].map((match) => match[0]);
 
-  assert.ok(imageTags.length >= 4);
+  assert.ok(imageTags.length >= 2);
   for (const tag of imageTags) assert.match(tag, /\balt=/, `image is missing alt: ${tag}`);
   for (const tag of externalLinks) assert.match(tag, /rel="noopener noreferrer"/);
-  assert.match(page, /<iframe[\s\S]*?title="Schettini Floor Solutions epoxy floor project video"/);
   assert.match(page, /aria-live="polite"/);
   assert.match(css, /@media \(max-width: 1024px\)/);
   assert.match(css, /@media \(max-width: 900px\)/);

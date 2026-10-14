@@ -46,11 +46,11 @@ export const metadata: Metadata = {
       "High-performance concrete coatings, polished concrete, toppings, overlays, and surface preparation built for demanding spaces.",
     images: [
       {
-        url: "/images/hero-floor.webp",
-        width: 640,
-        height: 639,
-        alt: "Finished commercial concrete floor by Schettini Floor Solutions",
-        type: "image/webp",
+        url: "/images/social-preview.jpg",
+        width: 1024,
+        height: 538,
+        alt: "Finished industrial concrete floor and yellow safety lanes by Schettini Floor Solutions",
+        type: "image/jpeg",
       },
     ],
   },
@@ -58,7 +58,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Schettini Floor Solutions",
     description: "High-performance concrete flooring systems built to last.",
-    images: ["/images/hero-floor.webp"],
+    images: ["/images/social-preview.jpg"],
   },
   robots: {
     index: true,
@@ -96,7 +96,7 @@ const businessSchema = {
   foundingDate: "2012",
   telephone: businessPhone,
   email: businessEmail,
-  image: `${siteUrl}/images/hero-floor.webp`,
+  image: `${siteUrl}/images/social-preview.jpg`,
   logo: `${siteUrl}/images/schettini-logo.png`,
   address: {
     "@type": "PostalAddress",
