@@ -18,7 +18,7 @@
     "lint": "bash scripts/sites-env.sh -- eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "bash scripts/sites-env.sh -- drizzle-kit generate",
     "build:cloudflare": "node scripts/build-cloudflare.mjs",
-    "test:cloudflare": "node --test tests/cloudflare-contact.test.mjs tests/cloudflare-export.test.mjs"
+    "test:cloudflare": "node --test tests/cloudflare-contact.test.mjs tests/cloudflare-export.test.mjs tests/project-location.test.mjs"
   },
   "dependencies": {
     "drizzle-orm": "0.45.2",

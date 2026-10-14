@@ -8,6 +8,8 @@ import { ProjectPicture } from "./project-picture";
 import { filters, heroPhoto, projects, type Project } from "./projects";
 import { Turnstile } from "./turnstile";
 import { prepareEstimateEmail } from "./estimate-email";
+import { ProjectLocation } from "./project-location";
+import { projectLocationFromForm } from "./project-location-data";
 import { trackEvent } from "./analytics";
 import {
   businessEmail,
@@ -54,6 +56,8 @@ export default function Home() {
   const [turnstileToken, setTurnstileToken] = useState("");
   const [emailDraft, setEmailDraft] = useState<{ href: string; body: string } | null>(null);
   const [copyStatus, setCopyStatus] = useState("");
+  const [locationLoading, setLocationLoading] = useState(false);
+  const [locationResetKey, setLocationResetKey] = useState(0);
   const projectTriggerRef = useRef<HTMLButtonElement | null>(null);
   const projectDialogRef = useRef<HTMLDivElement | null>(null);
   const menuTriggerRef = useRef<HTMLButtonElement | null>(null);
@@ -167,7 +171,10 @@ export default function Home() {
     event.preventDefault();
     const formElement = event.currentTarget;
     const formData = new FormData(formElement);
-    if (formStatus === "submitting") return;
+    if (formStatus === "submitting" || locationLoading) return;
+    const location = projectLocationFromForm(formData);
+    if (!location) return;
+    formData.set("location", location);
     const draft = prepareEstimateEmail(formData, businessEmail);
     setEmailDraft(draft);
     setCopyStatus("");
@@ -191,6 +198,8 @@ export default function Home() {
       const result = await response.json();
       if (!response.ok || result.ok !== true) throw new Error("The request was not accepted.");
       formElement.reset();
+      setLocationLoading(false);
+      setLocationResetKey((key) => key + 1);
       setFormStatus("success");
       trackEvent("estimate_request_submitted", { method: "website_form" });
     } catch {
@@ -423,12 +432,13 @@ export default function Home() {
               onSubmit={handleEstimate}
             >
               <p className="honeypot" aria-hidden="true"><label>Leave this field empty<input name="website" tabIndex={-1} autoComplete="off" /></label></p>
-              <div className="form-row"><label>Name <span aria-hidden="true">*</span><input name="name" autoComplete="name" required maxLength={100} placeholder="Your name" /></label><label>Company<input name="company" autoComplete="organization" maxLength={160} placeholder="Company or organization" /></label></div>
-              <div className="form-row"><label>Email <span aria-hidden="true">*</span><input id="estimate-email" type="email" name="email" autoComplete="email" inputMode="email" required maxLength={254} placeholder="name@company.com" /></label><label>Phone<input type="tel" name="phone" autoComplete="tel" inputMode="tel" maxLength={40} placeholder="Optional" /></label></div>
-              <div className="form-row"><label>Service<select name="service" defaultValue="Not sure yet"><option>Not sure yet</option>{services.map((service) => <option key={service.title}>{service.title}</option>)}</select></label><label>Project location <span aria-hidden="true">*</span><input name="location" autoComplete="address-level2" required maxLength={120} placeholder="City, State" /></label></div>
-              <label>Project details<textarea name="message" rows={4} maxLength={1500} placeholder="Type of space, approximate square footage, timeline, and current floor condition" /></label>
+              <div className="form-row"><label><span className="form-label">Name <span className="required-mark" aria-hidden="true">*</span></span><input name="name" autoComplete="name" required maxLength={100} placeholder="Your name" /></label><label><span className="form-label">Company</span><input name="company" autoComplete="organization" maxLength={160} placeholder="Company or organization" /></label></div>
+              <div className="form-row"><label><span className="form-label">Email <span className="required-mark" aria-hidden="true">*</span></span><input id="estimate-email" type="email" name="email" autoComplete="email" inputMode="email" required maxLength={254} placeholder="name@company.com" /></label><label><span className="form-label">Phone</span><input type="tel" name="phone" autoComplete="tel" inputMode="tel" maxLength={40} placeholder="Optional" /></label></div>
+              <label><span className="form-label">Service</span><select name="service" defaultValue="Not sure yet"><option>Not sure yet</option>{services.map((service) => <option key={service.title}>{service.title}</option>)}</select></label>
+              <ProjectLocation key={locationResetKey} onLoadingChange={setLocationLoading} />
+              <label><span className="form-label">Project details</span><textarea name="message" rows={4} maxLength={1500} placeholder="Type of space, approximate square footage, timeline, and current floor condition" /></label>
               {deliveryMode === "server" && <Turnstile siteKey={turnstileSiteKey} onToken={setTurnstileToken} resetKey={formStatus === "success" || formStatus === "error" ? formStatus : "idle"} />}
-              <button className="button form-button" type="submit" disabled={formStatus === "submitting" || (deliveryMode === "server" && !turnstileToken)}>
+              <button className="button form-button" type="submit" disabled={formStatus === "submitting" || locationLoading || (deliveryMode === "server" && !turnstileToken)}>
                 {formStatus === "submitting" ? <><span className="button-spinner" aria-hidden="true" /> Sending request…</> : <>{deliveryMode === "server" ? "Send estimate request" : "Prepare email request"} <span aria-hidden="true">↗</span></>}
               </button>
               <div className="form-feedback" aria-live="polite" aria-atomic="true">
