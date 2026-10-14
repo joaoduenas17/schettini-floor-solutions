@@ -5,7 +5,12 @@ const sender = "estimates@schettinifs.com";
 
 export default {
   async fetch(request, env) {
+    // Only the Pages service binding uses this internal URL.
+    // Public workers.dev and preview requests cannot trigger an email.
+    const url = new URL(request.url);
+    if (url.hostname !== "contact-mailer.internal" || url.pathname !== "/") return new Response(null, { status: 404 });
     if (request.method !== "POST") return new Response("Method not allowed", { status: 405 });
+    if (!env.EMAIL?.send) return Response.json({ ok: false }, { status: 503 });
     try {
       const data = await request.json();
       if (!data || typeof data !== "object" || !/^[^\s@<>\r\n]+@[^\s@<>\r\n]+\.[^\s@<>\r\n]+$/.test(data.email || "")) return Response.json({ ok: false }, { status: 400 });
