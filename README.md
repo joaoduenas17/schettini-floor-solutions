@@ -26,10 +26,10 @@ Turnstile setup documented in the deployment guide. The API advertises server
 mode only when all required bindings and keys are present.
 
 Photos are described in `app/projects.ts` and `app/project-photos.json`.
-Responsive WebP and AVIF files live in `public/images/projects/`. The former
-team photo and decorative video screenshot are excluded from every export.
-The About section is intentionally text only until a current team photo is
-provided. No project location or specific coating chemistry is inferred from
+Responsive WebP and AVIF files live in `public/images/projects/`. The decorative video screenshot is excluded from every export.
+The About section includes the owner-approved team photograph. Residential
+availability is included in the collapsed FAQ, with the hero focused on
+commercial and industrial work. No project location or specific coating chemistry is inferred from
 a photograph.
 
 Analytics is disabled until a real owner-supplied measurement ID is configured.

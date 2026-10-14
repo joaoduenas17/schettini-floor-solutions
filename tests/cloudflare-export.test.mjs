@@ -14,7 +14,7 @@ test("the folder contains every public route with real HTML and the new canonica
     assert.equal((html.match(/<h1\b/g) || []).length, 1, route);
     assert.match(html, /<meta name="description"/);
     assert.match(html, /admin@schettinifloor.com/);
-    assert.doesNotMatch(html, /data-netlify|form-detection\.html|team\.webp|project-decorative\.webp|facebook.com\/plugins\/video/);
+    assert.doesNotMatch(html, /data-netlify|form-detection\.html|project-decorative\.webp|facebook.com\/plugins\/video/);
     for (const tag of html.match(/<img\b[^>]*>/gi) || []) assert.match(tag, /\balt="[^"]+"/i);
   }
   assert.match(file("index.html"), /rel="canonical" href="https:\/\/schettinifs.com\//);
@@ -46,7 +46,11 @@ test("static links, responsive photos, and CSS assets resolve inside the upload 
     assert.ok(photo.width > 0 && photo.height > 0 && photo.alt.length > 10);
     assert.ok(existsSync(join(root, photo.src)));
   }
-  assert.ok(!existsSync(join(root, "images/team.webp")), "retired team photo must not be uploaded");
+  assert.ok(existsSync(join(root, "images/team.webp")), "restored team photo must be included");
+  const home = file("index.html");
+  assert.match(home, /class="about-team-image"/);
+  assert.doesNotMatch(home.match(/<section class="hero"[\s\S]*?<\/section>/)?.[0] || "", /Residential projects are also available/);
+  assert.match(home, /<details><summary>Do you handle residential projects\?[\s\S]*?Residential projects are also available/);
   assert.ok(!existsSync(join(root, "images/project-decorative.webp")));
   assert.ok(!existsSync(join(root, "form-detection.html")));
 });

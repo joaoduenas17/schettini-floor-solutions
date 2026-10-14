@@ -256,7 +256,6 @@ export default function Home() {
                 <a className="button" href="#contact">Request a Free Estimate <span aria-hidden="true">↗</span></a>
                 <a className="text-link" href="#projects">Explore our work <span aria-hidden="true">↓</span></a>
               </div>
-              <p className="residential-note">Residential projects are also available.</p>
             </div>
             <aside className="hero-proof hero-enter hero-enter-delayed" aria-label="Company highlights">
               <p className="proof-label">Built on experience</p><strong>Since 2012</strong><div className="proof-rule" />
@@ -340,7 +339,11 @@ export default function Home() {
         </section>
 
         <section className="about section" id="about" aria-labelledby="about-title">
-          <div className="shell about-grid about-text-only" data-reveal>
+          <div className="shell about-grid" data-reveal>
+            <div className="about-image">
+              <img className="about-team-image" src="/images/team.webp" alt="Schettini Floor Solutions team gathered around a table" width="640" height="640" loading="lazy" />
+              <div className="about-badge"><strong>A+</strong><span>BBB Accredited</span></div>
+            </div>
             <div className="about-copy">
               <p className="eyebrow light"><span aria-hidden="true" /> The Schettini standard</p><h2 id="about-title">Experienced hands. Straight answers.</h2>
               <p className="about-lead">Schettini Floor Solutions is a locally owned concrete-flooring company built on disciplined preparation, honest guidance, and quality execution.</p>
@@ -391,7 +394,7 @@ export default function Home() {
           <div className="shell faq-grid" data-reveal>
             <div><p className="eyebrow dark"><span aria-hidden="true" /> Common questions</p><h2 id="faq-title">Planning a flooring project?</h2></div>
             <div className="faq-list">
-              <details><summary>Do you handle residential projects?<span aria-hidden="true">+</span></summary><p>Yes. Commercial and industrial work is our primary focus, but we also accept select residential projects, including garage floors.</p></details>
+              <details><summary>Do you handle residential projects?<span aria-hidden="true">+</span></summary><p>Residential projects are also available. Commercial and industrial work is our primary focus, and we accept select residential projects, including garage floors.</p></details>
               <details><summary>What areas do you serve?<span aria-hidden="true">+</span></summary><p>We are based in Charlotte, North Carolina, and take on projects nationwide. Availability depends on project scope, schedule, and location.</p></details>
               <details><summary>Can you work around an operating schedule?<span aria-hidden="true">+</span></summary><p>Project schedules are coordinated directly with each client. Tell us about operational or access constraints during the estimate process.</p></details>
               <details><summary>How do I know which floor system I need?<span aria-hidden="true">+</span></summary><p>You do not need to decide before contacting us. We assess the space, substrate, traffic, maintenance needs, and desired finish before recommending a system.</p></details>

@@ -37,7 +37,8 @@ test("scroll reveals and real multi-photo galleries replace the video screenshot
   assert.match(page, /photo-thumbnails/);
   assert.match(page, /Previous photo/);
   assert.match(page, /Next photo/);
-  assert.doesNotMatch(page, /team\.webp|<iframe|project\.video/);
+  assert.doesNotMatch(page, /<iframe|project\.video/);
+  assert.match(page, /className="about-team-image"/);
 });
 
 test("all static in-page links resolve to an existing section", async () => {

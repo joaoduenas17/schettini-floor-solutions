@@ -94,7 +94,8 @@ propiedad ni garantiza la indexación.
 - Compilación estática y revisión de TypeScript.
 - Referencias locales y variantes responsivas de las imágenes.
 - Canonical, Open Graph, sitemap, robots y páginas legales.
-- Ausencia de la foto del equipo y de las miniaturas retiradas en la carpeta.
+- Foto del equipo restaurada y ausencia de las miniaturas retiradas.
+- Disponibilidad residencial en la FAQ desplegable, sin esa nota en la portada.
 - Pruebas del API con entrega simulada, validación, spam y estados de error.
 - Borrador de correo y conservación de símbolos y saltos de línea.
 

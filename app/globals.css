@@ -77,7 +77,6 @@ address { font-style: normal; }
 .hero-lead { margin: 30px 0 0; max-width: 650px; color: rgba(255,255,255,.78); font-size: clamp(17px, 1.6vw, 21px); line-height: 1.6; }
 .hero-actions { margin-top: 38px; display: flex; align-items: center; gap: 30px; flex-wrap: wrap; }
 .text-link { display: inline-flex; align-items: center; gap: 16px; color: var(--white); font-size: 13px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,.55); padding-bottom: 8px; }
-.residential-note { margin: 24px 0 0; color: rgba(255,255,255,.58); font-size: 13px; }
 .hero-proof { position: absolute; right: 0; bottom: 0; width: 300px; padding: 28px 30px; background: var(--white); color: var(--ink); }
 .proof-label { margin: 0 0 5px; color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
 .hero-proof strong { font-size: 34px; letter-spacing: -.04em; }
@@ -167,13 +166,16 @@ body.modal-open { overflow: hidden; }
 .market-list p { margin: 0; color: var(--muted); line-height: 1.6; }
 
 .about { background: var(--ink); color: var(--white); overflow: hidden; }
-.about-grid { display: block; }
-.about-copy { max-width: 1000px; }
-.about-copy h2 { max-width: 850px; }
+.about-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 92px; align-items: center; }
+.about-image { min-height: 610px; position: relative; }
+.about-team-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: saturate(.78) contrast(1.05); }
+.about-badge { position: absolute; z-index: 1; right: -1px; bottom: -1px; width: 180px; aspect-ratio: 1; padding: 28px; display: flex; flex-direction: column; justify-content: flex-end; background: var(--red); }
+.about-badge strong { font-size: 52px; line-height: 1; letter-spacing: -.06em; }
+.about-badge span { margin-top: 8px; font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
 .about-copy h2 { margin: 0; font-size: clamp(43px, 5vw, 70px); line-height: .98; letter-spacing: -.055em; }
-.about-lead { margin: 28px 0 38px; max-width: 740px; color: rgba(255,255,255,.72); font-size: 18px; line-height: 1.75; }
-.about-points { display: grid; grid-template-columns: repeat(3,1fr); gap: 36px; border-top: 1px solid rgba(255,255,255,.18); }
-.about-points > div { display: grid; align-content: start; gap: 12px; padding: 26px 0; border-bottom: 1px solid rgba(255,255,255,.18); }
+.about-lead { margin: 28px 0 38px; color: rgba(255,255,255,.72); font-size: 18px; line-height: 1.75; }
+.about-points { border-top: 1px solid rgba(255,255,255,.18); }
+.about-points > div { display: grid; grid-template-columns: 135px 1fr; gap: 26px; padding: 21px 0; border-bottom: 1px solid rgba(255,255,255,.18); }
 .about-points strong { font-size: 13px; }
 .about-points span { color: rgba(255,255,255,.72); font-size: 13px; line-height: 1.55; }
 
@@ -426,6 +428,7 @@ body.modal-open { overflow: hidden; }
   .project-card { min-height: 390px; }
   .markets-grid, .about-grid, .faq-grid, .contact-grid { grid-template-columns: 1fr; gap: 64px; }
   .markets-intro { position: static; }
+  .about-image { min-height: 520px; height: 520px; }
   .process-grid { grid-template-columns: repeat(2, 1fr); }
   .process-grid article { min-height: 270px; border-bottom: 1px solid var(--line); }
   .process-grid article:nth-child(2) { border-right: 0; }
@@ -460,8 +463,10 @@ body.modal-open { overflow: hidden; }
   .project-meta strong { max-width: 95%; }
   .market-list article { min-height: 150px; grid-template-columns: 44px 1fr; gap: 14px; }
   .about-grid { gap: 52px; }
-  .about-points { grid-template-columns: 1fr; gap: 0; }
-  .about-points > div { gap: 7px; }
+  .about-image { min-height: 430px; height: 430px; }
+  .about-badge { width: 145px; padding: 22px; }
+  .about-badge strong { font-size: 42px; }
+  .about-points > div { grid-template-columns: 1fr; gap: 7px; }
   .process-grid { grid-template-columns: 1fr; }
   .process-grid article { min-height: 245px; border-right: 0; }
   .process-grid h3 { margin-top: 54px; }

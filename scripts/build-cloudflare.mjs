@@ -12,9 +12,9 @@ const result = spawnSync(binary, ["build"], {
 if (result.error) throw result.error;
 if (result.status !== 0) process.exit(result.status || 1);
 const output = join(root, "out");
-// Keep retired team photos, video screenshots, and the Netlify form blueprint
+// Keep retired video screenshots and the Netlify form blueprint
 // out of the published folder, even when rebuilding from an older checkout.
-for (const name of ["team.webp", "project-decorative.webp", "project-coating.webp", "project-commercial.webp", "project-polished.webp", "hero-floor.webp"]) {
+for (const name of ["project-decorative.webp", "project-coating.webp", "project-commercial.webp", "project-polished.webp", "hero-floor.webp"]) {
   rmSync(join(output, "images", name), { force: true });
 }
 rmSync(join(output, "form-detection.html"), { force: true });
