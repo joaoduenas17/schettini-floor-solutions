@@ -77,3 +77,37 @@ test("the optional mailer is fixed to the owner mailbox, with no public route", 
   assert.equal(config.preview_urls, false);
   assert.equal(config.send_email[0].destination_address, "admin@schettinifloor.com");
 });
+
+async function loadMailer() {
+  const source = await readFile(new URL("../cloudflare/contact-mailer.js", import.meta.url), "utf8");
+  const simulated = source.replace('import { EmailMessage } from "cloudflare:email";', "class EmailMessage { constructor(from, to, raw) { Object.assign(this, { from, to, raw }); } }");
+  return (await import(`data:text/javascript;base64,${Buffer.from(simulated).toString("base64")}`)).default;
+}
+
+test("public Worker URLs cannot invoke the mailer even with a configured email binding", async () => {
+  const mailer = await loadMailer();
+  let sends = 0;
+  const emailEnv = { EMAIL: { send: async () => { sends++; } } };
+  const publicRequest = new Request("https://schettini-contact-mailer.example.workers.dev/", { method: "POST", body: JSON.stringify(valid) });
+  assert.equal((await mailer.fetch(publicRequest, emailEnv)).status, 404);
+  assert.equal(sends, 0);
+  assert.equal((await mailer.fetch(new Request("https://contact-mailer.internal/"), emailEnv)).status, 405);
+  assert.equal((await mailer.fetch(new Request("https://contact-mailer.internal/", { method: "POST" }), {})).status, 503);
+});
+
+test("private mailer preserves UTF-8, ignores recipient overrides, and reports delivery failures", async () => {
+  const mailer = await loadMailer();
+  const payload = { ...valid, name: "João", message: "Concrete area: 1,000 ft²", recipient: "other@example.com" };
+  const makeRequest = (data = payload) => new Request("https://contact-mailer.internal/", { method: "POST", body: JSON.stringify(data) });
+  let sent;
+  const emailEnv = { EMAIL: { send: async (message) => { sent = message; } } };
+  assert.equal((await mailer.fetch(makeRequest(), emailEnv)).status, 200);
+  assert.equal(sent.to, "admin@schettinifloor.com");
+  assert.equal(sent.from, "estimates@schettinifs.com");
+  assert.match(sent.raw, /Reply-To: test@example.com\r\n/);
+  assert.match(Buffer.from(sent.raw.split("\r\n\r\n")[1], "base64").toString("utf8"), /João[\s\S]*1,000 ft²/);
+  sent = undefined;
+  assert.equal((await mailer.fetch(makeRequest({ ...payload, email: "test@example.com\r\nBcc: injected@example.com" }), emailEnv)).status, 400);
+  assert.equal(sent, undefined);
+  assert.equal((await mailer.fetch(makeRequest(), { EMAIL: { send: async () => { throw new Error("mail server unavailable"); } } })).status, 502);
+});
