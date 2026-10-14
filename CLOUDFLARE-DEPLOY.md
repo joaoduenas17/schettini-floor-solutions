@@ -80,14 +80,39 @@ el enlace de correo directo. Ninguna clave secreta está dentro del ZIP.
 
 ## Analítica e indexación
 
-No hay ninguna cuenta de analítica inventada o conectada en esta entrega.
-Se puede activar Cloudflare Web Analytics desde Pages y reflejarlo en la
-política. GA4 también está preparado con consentimiento, pero requiere un
-Measurement ID real y una nueva compilación.
+Cloudflare Web Analytics está presente en la web publicada. La política de
+privacidad describe su medición sin cookies y separa la analítica opcional de
+Google Analytics, que solo se carga con consentimiento y un Measurement ID real.
+Comprueba la recepción de datos en el panel de Cloudflare Web Analytics.
 
 Con el dominio publicado, verifica la propiedad en Google Search Console y
 envía **https://schettinifs.com/sitemap.xml**. Tener el sitemap no verifica la
 propiedad ni garantiza la indexación.
+
+## Paquete de publicación con formulario
+
+El paquete `schettini-pages-form.zip` contiene `site/` con la web compilada,
+`configure-pages.mjs` y `wrangler.pages.jsonc`. Extráelo en Downloads fuera
+de un repositorio Git. Así Wrangler publicará en producción en el proyecto
+existente `schettinifs`, sin seleccionar una rama de preview accidentalmente.
+
+1. Ejecuta `node configure-pages.mjs` e introduce solo la **Site Key pública**
+   del widget Turnstile creado para `schettinifs.com`.
+2. Ejecuta `npx wrangler@4.92.0 pages secret put TURNSTILE_SECRET_KEY --project-name schettinifs`.
+   Introduce la **Secret Key** en el prompt protegido de Wrangler. No va en
+   ningún archivo ni en el chat.
+3. Ejecuta `npx wrangler@4.92.0 pages deploy site --project-name schettinifs`.
+
+La configuración añade el service binding `CONTACT_MAILER` hacia
+`schettini-contact-mailer` y la variable pública `TURNSTILE_SITE_KEY`. El
+paquete conserva `_worker.js` y `_routes.json`, necesarios para `/api/contact`.
+La carpeta `site/` de este paquete se publica con Wrangler, no con el uploader
+de archivos estáticos de Workers.
+
+Tras la publicación, comprueba `/api/contact`, Turnstile y una consulta real
+identificada como prueba, confirmando su recepción en `admin@schettinifloor.com`.
+Los redirects de HTTPS y www se administran mediante Cloudflare Redirect Rules;
+las reglas de hostname no son compatibles con el archivo Pages `_redirects`.
 
 ## Verificación de esta entrega
 

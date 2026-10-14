@@ -21,7 +21,9 @@ rmSync(join(output, "form-detection.html"), { force: true });
 copyFileSync(join(root, "cloudflare/pages-worker.js"), join(output, "_worker.js"));
 copyFileSync(join(root, "cloudflare/headers.txt"), join(output, "_headers"));
 writeFileSync(join(output, "_routes.json"), JSON.stringify({ version: 1, include: ["/api/*"], exclude: [] }, null, 2));
-writeFileSync(join(output, "_redirects"), "https://www.schettinifs.com/* https://schettinifs.com/:splat 301\nhttp://schettinifs.com/* https://schettinifs.com/:splat 301\nhttp://www.schettinifs.com/* https://schettinifs.com/:splat 301\n");
+// Pages _redirects supports paths, not hostname or scheme matching.
+// HTTPS and www redirects are managed by the domain's Cloudflare Redirect Rules.
+writeFileSync(join(output, "_redirects"), "# Hostname and HTTPS redirects are configured in Cloudflare Redirect Rules.\n");
 // Next.js emits a standalone 404.html for static hosting.
 if (!existsSync(join(output, "404.html"))) throw new Error("Custom 404 page is missing.");
 let files = 0;
