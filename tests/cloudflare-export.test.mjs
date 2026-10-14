@@ -64,6 +64,19 @@ test("indexing and routing target the custom domain and preserve the custom 404"
   assert.match(file("_headers"), /Strict-Transport-Security/);
 });
 
+test("the location selectors and every state's city file are included in the upload", () => {
+  const states = JSON.parse(readFileSync(new URL("../app/us-states.json", import.meta.url), "utf8"));
+  const html = file("index.html");
+  assert.match(html, /id="project-state"/);
+  assert.match(html, /id="project-city"/);
+  assert.match(html, /Select a state first/);
+  for (const state of states) {
+    const data = JSON.parse(file(`locations/2026/${state.code.toLowerCase()}.json`));
+    assert.equal(data.state, state.code);
+    assert.ok(data.cities.length);
+  }
+});
+
 test("the folder fits dashboard upload limits with no source or credentials", () => {
   let count = 0;
   function inspect(path) {
